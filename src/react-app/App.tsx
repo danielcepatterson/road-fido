@@ -81,7 +81,35 @@ function App() {
 	};
 
 
+
+	// Helper: get all dates in the run as array of strings (YYYY-MM-DD)
+	function getRunDates(run: Run): string[] {
+		if (!run.startDate || !run.endDate) return [];
+		const dates: string[] = [];
+		let d = new Date(run.startDate);
+		const end = new Date(run.endDate);
+		while (d <= end) {
+			dates.push(d.toISOString().slice(0, 10));
+			d = new Date(d.getTime() + 24 * 60 * 60 * 1000);
+		}
+		return dates;
+	}
+
+	// Group transactions by date (assume description starts with date, e.g. '2025-12-27: ...')
+	function groupTransactionsByDate(transactions: Transaction[]): Record<string, Transaction[]> {
+		const map: Record<string, Transaction[]> = {};
+		for (const t of transactions) {
+			const match = t.description.match(/^(\d{4}-\d{2}-\d{2}):/);
+			const date = match ? match[1] : 'other';
+			if (!map[date]) map[date] = [];
+			map[date].push(t);
+		}
+		return map;
+	}
+
 	const total = selectedRun ? selectedRun.transactions.reduce((sum, t) => t.type === 'income' ? sum + t.amount : sum - t.amount, 0) : 0;
+	const runDates = selectedRun ? getRunDates(selectedRun) : [];
+	const txByDate = selectedRun ? groupTransactionsByDate(selectedRun.transactions) : {};
 
 	return (
 		<>
@@ -158,21 +186,24 @@ function App() {
 						/>
 						<button type="submit">Add</button>
 					</form>
-					<div className="card" style={{ textAlign: 'left' }}>
-						<h2>Transactions for: {selectedRun.title}</h2>
-						{selectedRun.transactions.length === 0 ? (
-							<p>No transactions yet.</p>
-						) : (
-							<ul style={{ listStyle: 'none', padding: 0 }}>
-								{selectedRun.transactions.map((t, i) => (
-									<li key={i} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', marginBottom: 4 }}>
-										<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> — {t.description}
-									</li>
-								))}
-							</ul>
-						)}
-						<h3>Total: ${total.toFixed(2)}</h3>
-					</div>
+						<div className="card" style={{ textAlign: 'left' }}>
+								<h2>Calendar for: {selectedRun.title}</h2>
+								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
+									{runDates.map((date, i) => (
+										<div key={date} style={{ border: '1px solid #444', borderRadius: 8, padding: 8, minHeight: 80, background: '#222' }}>
+											<div style={{ fontWeight: 'bold', marginBottom: 4 }}>{date}</div>
+											<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+												{(txByDate[date] || []).map((t, j) => (
+													<li key={j} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
+														<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
+													</li>
+												))}
+											</ul>
+										</div>
+									))}
+								</div>
+								<h3 style={{ marginTop: 16 }}>Total: ${total.toFixed(2)}</h3>
+						</div>
 				</>
 			) : (
 				<div className="card"><p>Please create and select a run to begin tracking.</p></div>
