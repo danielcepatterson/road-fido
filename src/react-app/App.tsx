@@ -11,54 +11,76 @@ function App() {
 	const [count, setCount] = useState(0);
 	const [name, setName] = useState("unknown");
 
+	// State for transactions
+	const [transactions, setTransactions] = useState<Array<{ type: 'income' | 'expense'; description: string; amount: number }>>([]);
+	const [form, setForm] = useState<{ type: 'income' | 'expense'; description: string; amount: string }>({
+		type: 'expense',
+		description: '',
+		amount: '',
+	});
+
+	const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+		const { name, value } = e.target;
+		setForm((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleAddTransaction = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!form.description || !form.amount || isNaN(Number(form.amount))) return;
+		setTransactions((prev) => [
+			{ type: form.type, description: form.description, amount: Number(form.amount) },
+			...prev,
+		]);
+		setForm({ type: 'expense', description: '', amount: '' });
+	};
+
+	const total = transactions.reduce((sum, t) => t.type === 'income' ? sum + t.amount : sum - t.amount, 0);
+
 	return (
 		<>
-			<div>
-				<a href="https://vite.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-				<a href="https://hono.dev/" target="_blank">
-					<img src={honoLogo} className="logo cloudflare" alt="Hono logo" />
-				</a>
-				<a href="https://workers.cloudflare.com/" target="_blank">
-					<img
-						src={cloudflareLogo}
-						className="logo cloudflare"
-						alt="Cloudflare logo"
-					/>
-				</a>
+			<h1>Road Trip Income & Expense Tracker</h1>
+			<form className="card" onSubmit={handleAddTransaction} style={{ marginBottom: 24 }}>
+				<select name="type" value={form.type} onChange={handleFormChange} style={{ marginRight: 8 }}>
+					<option value="income">Income</option>
+					<option value="expense">Expense</option>
+				</select>
+				<input
+					name="description"
+					placeholder="Description"
+					value={form.description}
+					onChange={handleFormChange}
+					style={{ marginRight: 8 }}
+					required
+				/>
+				<input
+					name="amount"
+					placeholder="Amount"
+					type="number"
+					value={form.amount}
+					onChange={handleFormChange}
+					min="0.01"
+					step="0.01"
+					required
+					style={{ marginRight: 8, width: 100 }}
+				/>
+				<button type="submit">Add</button>
+			</form>
+
+			<div className="card" style={{ textAlign: 'left' }}>
+				<h2>Transactions</h2>
+				{transactions.length === 0 ? (
+					<p>No transactions yet.</p>
+				) : (
+					<ul style={{ listStyle: 'none', padding: 0 }}>
+						{transactions.map((t, i) => (
+							<li key={i} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', marginBottom: 4 }}>
+								<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> — {t.description}
+							</li>
+						))}
+					</ul>
+				)}
+				<h3>Total: ${total.toFixed(2)}</h3>
 			</div>
-			<h1>Vite + React + Hono + Cloudflare</h1>
-			<div className="card">
-				<button
-					onClick={() => setCount((count) => count + 1)}
-					aria-label="increment"
-				>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<div className="card">
-				<button
-					onClick={() => {
-						fetch("/api/")
-							.then((res) => res.json() as Promise<{ name: string }>)
-							.then((data) => setName(data.name));
-					}}
-					aria-label="get name"
-				>
-					Name from API is: {name}
-				</button>
-				<p>
-					Edit <code>worker/index.ts</code> to change the name
-				</p>
-			</div>
-			<p className="read-the-docs">Click on the logos to learn more</p>
 		</>
 	);
 }
