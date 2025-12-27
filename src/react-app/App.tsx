@@ -495,11 +495,48 @@ const handleDayTimeChange = (date: string, value: string) => {
 												return (
 													<tr key={i + t.description}>
 														<td>{t.type === 'income' ? 'Income' : 'Expense'}</td>
-														<td>{t.description.replace(/^(\d{4}-\d{2}-\d{2}):/, '')}</td>
+														<td>
+															<input
+																type="text"
+																value={t.description}
+																onChange={e => {
+																	const newDesc = e.target.value;
+																	setRuns((prev: Run[]) => prev.map(run =>
+																		run.id === selectedRun.id
+																			? {
+																					...run,
+																					transactions: run.transactions.map((tx, j) =>
+																						j === i ? { ...tx, description: newDesc } : tx
+																					),
+																				}
+																			: run
+																	));
+																}}
+																style={{ width: '90%', fontSize: 14 }}
+															/>
+														</td>
 														<td style={{ textAlign: 'right', color: t.type === 'income' ? 'lightgreen' : 'salmon' }}>
 															{t.type === 'expense' ? '-' : ''}${t.amount.toFixed(2)}
 														</td>
 														<td>{date}</td>
+														<td>
+															<button
+																style={{ color: 'red', fontWeight: 'bold', border: 'none', background: 'none', cursor: 'pointer' }}
+																title="Delete"
+																onClick={() => {
+																	setRuns((prev: Run[]) => prev.map(run =>
+																		run.id === selectedRun.id
+																			? {
+																					...run,
+																					transactions: run.transactions.filter((_, j) => j !== i)
+																				}
+																			: run
+																	));
+																}}
+															>
+																✕
+															</button>
+														</td>
 													</tr>
 												);
 											})}
@@ -525,6 +562,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 														return net.toFixed(2);
 													})()}
 												</td>
+												<td></td>
 												<td></td>
 											</tr>
 										</tfoot>
