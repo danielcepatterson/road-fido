@@ -23,9 +23,8 @@ function App() {
 		return saved ? JSON.parse(saved) : [];
 	});
 	const handleDayTypeChange = (date: string, value: DayType) => {
-		setDayTypeEdits(prev => ({ ...prev, [date]: value }));
 		if (!selectedRun) return;
-		setRuns(prev => prev.map(run =>
+		setRuns((prev: Run[]) => prev.map(run =>
 			run.id === selectedRun.id
 				? {
 						...run,
