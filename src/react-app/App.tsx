@@ -4,26 +4,31 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import CalendarView from "./CalendarView";
 
-function EditRunsPage({ runs, setRuns, selectedRunId, setSelectedRunId }: any) {
-	// ...existing code...
+type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
+type DayType = 'Travel' | 'Show' | 'OFF' | 'Travel/Show' | '';
+type Run = {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  transactions: Transaction[];
+  dayTypes?: Record<string, DayType>;
+  dayTimes?: Record<string, string>;
+  showPays?: Record<string, string>;
+  gasEstimates?: Record<string, string>;
+  venues?: Record<string, string>;
+  travelFrom?: Record<string, string>;
+  travelTo?: Record<string, string>;
+};
 
+interface EditRunsPageProps {
+  runs: Run[];
+  setRuns: React.Dispatch<React.SetStateAction<Run[]>>;
+  selectedRunId: string | null;
+  setSelectedRunId: React.Dispatch<React.SetStateAction<string | null>>;
+}
 
-	type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
-	type DayType = 'Travel' | 'Show' | 'OFF' | 'Travel/Show' | '';
-	type Run = {
-		id: string;
-		title: string;
-		startDate: string;
-		endDate: string;
-		transactions: Transaction[];
-		dayTypes?: Record<string, DayType>;
-		dayTimes?: Record<string, string>; // date -> time string (e.g. '08:00')
-		showPays?: Record<string, string>; // date -> show pay
-		gasEstimates?: Record<string, string>; // date -> gas estimate
-		venues?: Record<string, string>; // date -> venue name
-		travelFrom?: Record<string, string>; // date -> from location
-		travelTo?: Record<string, string>; // date -> to location
-	};
+function EditRunsPage({ runs, setRuns, selectedRunId, setSelectedRunId }: EditRunsPageProps) {
 const handleVenueChange = (date: string, value: string) => {
 	if (!selectedRun) return;
 	setRuns((prev: Run[]) => prev.map(run =>
@@ -94,10 +99,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 	));
 };
 
-	const [runs, setRuns] = useState<Run[]>(() => {
-		const saved = localStorage.getItem('runs');
-		return saved ? JSON.parse(saved) : [];
-	});
+  // State is managed in App, not here
 	const handleDayTypeChange = (date: string, value: DayType) => {
 		if (!selectedRun) return;
 		setRuns((prev: Run[]) => prev.map(run =>
@@ -119,17 +121,13 @@ const handleDayTimeChange = (date: string, value: string) => {
 			default: return '#222';
 		}
 	}
-	const [selectedRunId, setSelectedRunId] = useState<string | null>(() => {
-		const saved = localStorage.getItem('selectedRunId');
-		return saved || null;
-	});
 	const [newRunTitle, setNewRunTitle] = useState('');
 	const [newRunStartDate, setNewRunStartDate] = useState('');
 	const [newRunEndDate, setNewRunEndDate] = useState('');
 	const [form, setForm] = useState<{ type: 'income' | 'expense'; description: string; amount: string }>({
-		type: 'expense',
-		description: '',
-		amount: '',
+	  type: 'expense',
+	  description: '',
+	  amount: '',
 	});
 
 	// Save runs and selectedRunId to localStorage
@@ -140,9 +138,9 @@ const handleDayTimeChange = (date: string, value: string) => {
 		if (selectedRunId) localStorage.setItem('selectedRunId', selectedRunId);
 	}, [selectedRunId]);
 
-	const selectedRun = runs.find(r => r.id === selectedRunId) || null;
+	const selectedRun = runs.find((r: Run) => r.id === selectedRunId) || null;
 
-	const handleCreateRun = (e: React.FormEvent) => {
+	const handleCreateRun = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!newRunTitle.trim()) return;
 		const id = Date.now().toString();
@@ -171,7 +169,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 	};
 
 
-	const handleAddTransaction = (e: React.FormEvent) => {
+	const handleAddTransaction = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!form.description || !form.amount || isNaN(Number(form.amount)) || !selectedRun) return;
 		const tx: Transaction = { type: form.type, description: form.description, amount: Number(form.amount) };
@@ -206,7 +204,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 		return map;
 	}
 
-	const total = selectedRun ? selectedRun.transactions.reduce((sum, t) => t.type === 'income' ? sum + t.amount : sum - t.amount, 0) : 0;
+	const total = selectedRun ? selectedRun.transactions.reduce((sum: number, t: Transaction) => t.type === 'income' ? sum + t.amount : sum - t.amount, 0) : 0;
 	const runDates = selectedRun ? getRunDates(selectedRun) : [];
 	const txByDate = selectedRun ? groupTransactionsByDate(selectedRun.transactions) : {};
 
@@ -582,7 +580,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 
 // Main App with page switcher
 export default function App() {
-	const [runs, setRuns] = useState<any[]>(() => {
+	const [runs, setRuns] = useState<Run[]>(() => {
 		const saved = localStorage.getItem('runs');
 		return saved ? JSON.parse(saved) : [];
 	});
@@ -596,7 +594,7 @@ export default function App() {
 	useEffect(() => {
 		if (selectedRunId) localStorage.setItem('selectedRunId', selectedRunId);
 	}, [selectedRunId]);
-	const selectedRun = runs.find(r => r.id === selectedRunId) || null;
+	const selectedRun = runs.find((r: Run) => r.id === selectedRunId) || null;
 	const [page, setPage] = useState<'edit' | 'calendar'>('edit');
 
 	return (
@@ -618,5 +616,3 @@ export default function App() {
 		</div>
 	);
 }
-
-export default App;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react"; // Removed unused imports
 import "./App.css";
 
 // ...copy all types and helpers from App.tsx....
