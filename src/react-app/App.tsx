@@ -8,18 +8,43 @@ function App() {
 
 
 	type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
+	type DayType = 'Travel' | 'Show' | 'OFF' | 'Travel/Show' | '';
 	type Run = {
 		id: string;
 		title: string;
 		startDate: string;
 		endDate: string;
 		transactions: Transaction[];
+		dayTypes?: Record<string, DayType>;
 	};
 
 	const [runs, setRuns] = useState<Run[]>(() => {
 		const saved = localStorage.getItem('runs');
 		return saved ? JSON.parse(saved) : [];
 	});
+	const [dayTypeEdits, setDayTypeEdits] = useState<Record<string, DayType>>({});
+	const handleDayTypeChange = (date: string, value: DayType) => {
+		setDayTypeEdits(prev => ({ ...prev, [date]: value }));
+		if (!selectedRun) return;
+		setRuns(prev => prev.map(run =>
+			run.id === selectedRun.id
+				? {
+						...run,
+						dayTypes: { ...run.dayTypes, [date]: value },
+					}
+				: run
+		));
+	};
+
+	function getDayTypeColor(type: DayType): string {
+		switch (type) {
+			case 'Show': return '#1e7e34'; // green
+			case 'Travel': return '#ffc107'; // yellow
+			case 'OFF': return '#007bff'; // blue
+			case 'Travel/Show': return '#b8860b'; // dark yellow/gold
+			default: return '#222';
+		}
+	}
 	const [selectedRunId, setSelectedRunId] = useState<string | null>(() => {
 		const saved = localStorage.getItem('selectedRunId');
 		return saved || null;
@@ -189,18 +214,43 @@ function App() {
 						<div className="card" style={{ textAlign: 'left' }}>
 								<h2>Calendar for: {selectedRun.title}</h2>
 								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
-									{runDates.map(date => (
-										<div key={date} style={{ border: '1px solid #444', borderRadius: 8, padding: 8, minHeight: 80, background: '#222' }}>
-											<div style={{ fontWeight: 'bold', marginBottom: 4 }}>{date}</div>
-											<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-												{(txByDate[date] || []).map((t, j) => (
-													<li key={j} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
-														<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
-													</li>
-												))}
-											</ul>
-										</div>
-									))}
+									{runDates.map(date => {
+										const dayType = selectedRun?.dayTypes?.[date] || '';
+										return (
+											<div
+												key={date}
+												style={{
+													border: '1px solid #444',
+													borderRadius: 8,
+													padding: 8,
+													minHeight: 100,
+													background: getDayTypeColor(dayType),
+													color: dayType === 'Travel' || dayType === 'Travel/Show' ? '#222' : '#fff',
+													transition: 'background 0.2s',
+												}}
+											>
+												<div style={{ fontWeight: 'bold', marginBottom: 4 }}>{date}</div>
+												<select
+													value={dayType}
+													onChange={e => handleDayTypeChange(date, e.target.value as DayType)}
+													style={{ marginBottom: 6, width: '100%' }}
+												>
+													<option value="">-- Mark Day --</option>
+													<option value="Travel">Travel</option>
+													<option value="Show">Show</option>
+													<option value="OFF">OFF</option>
+													<option value="Travel/Show">Travel/Show</option>
+												</select>
+												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+													{(txByDate[date] || []).map((t, j) => (
+														<li key={j} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
+															<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
+														</li>
+													))}
+												</ul>
+											</div>
+										);
+									})}
 								</div>
 								<h3 style={{ marginTop: 16 }}>Total: ${total.toFixed(2)}</h3>
 						</div>
