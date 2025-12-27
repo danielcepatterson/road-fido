@@ -17,7 +17,32 @@ function App() {
 		transactions: Transaction[];
 		dayTypes?: Record<string, DayType>;
 		dayTimes?: Record<string, string>; // date -> time string (e.g. '08:00')
+		showPays?: Record<string, string>; // date -> show pay
+		gasEstimates?: Record<string, string>; // date -> gas estimate
 	};
+const handleShowPayChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				showPays: { ...run.showPays, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleGasEstimateChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				gasEstimates: { ...run.gasEstimates, [date]: value },
+			}
+			: run
+	));
+};
 const handleDayTimeChange = (date: string, value: string) => {
 	if (!selectedRun) return;
 	setRuns((prev: Run[]) => prev.map(run =>
@@ -227,6 +252,17 @@ const handleDayTimeChange = (date: string, value: string) => {
 									{runDates.map(date => {
 										const dayType = selectedRun?.dayTypes?.[date] || '';
 										const dayTime = selectedRun?.dayTimes?.[date] || '';
+										// Show pay and gas expense (user configurable)
+										const showPay = selectedRun?.showPays?.[date] ?? '200';
+										const gasExpense = selectedRun?.gasEstimates?.[date] ?? '75';
+										let autoLine: { type: 'income' | 'expense'; amount: number; label: string } | null = null;
+										if (dayType === 'Show') {
+											autoLine = { type: 'income', amount: Number(showPay), label: 'Show Pay' };
+										} else if (dayType === 'Travel') {
+											autoLine = { type: 'expense', amount: Number(gasExpense), label: 'Estimated Gas' };
+										} else if (dayType === 'Travel/Show') {
+											autoLine = { type: 'income', amount: Number(showPay), label: 'Show Pay' };
+										}
 										return (
 											<div
 												key={date}
@@ -234,7 +270,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 													border: '1px solid #444',
 													borderRadius: 8,
 													padding: 8,
-													minHeight: 120,
+													minHeight: 140,
 													background: getDayTypeColor(dayType),
 													color: dayType === 'Travel' || dayType === 'Travel/Show' ? '#222' : '#fff',
 													transition: 'background 0.2s',
@@ -269,6 +305,32 @@ const handleDayTimeChange = (date: string, value: string) => {
 													)}
 												</div>
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+													{dayType === 'Show' || dayType === 'Travel/Show' ? (
+														<li style={{ color: 'lightgreen', fontSize: 13, marginBottom: 2 }}>
+															<strong>+${Number(showPay).toFixed(2)}</strong> Show Pay
+															<input
+																type="number"
+																min="0"
+																step="1"
+																value={showPay}
+																onChange={e => handleShowPayChange(date, e.target.value)}
+																style={{ marginLeft: 8, width: 60, fontSize: 12 }}
+															/>
+														</li>
+													) : null}
+													{dayType === 'Travel' ? (
+														<li style={{ color: 'salmon', fontSize: 13, marginBottom: 2 }}>
+															<strong>-${Number(gasExpense).toFixed(2)}</strong> Estimated Gas
+															<input
+																type="number"
+																min="0"
+																step="1"
+																value={gasExpense}
+																onChange={e => handleGasEstimateChange(date, e.target.value)}
+																style={{ marginLeft: 8, width: 60, fontSize: 12 }}
+															/>
+														</li>
+													) : null}
 													{(txByDate[date] || []).map(t => (
 														<li key={t.description + t.amount} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
 															<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
