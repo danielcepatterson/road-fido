@@ -253,11 +253,43 @@ const handleDayTimeChange = (date: string, value: string) => {
 			</div>
 			{selectedRun ? (
 				<>
-					<div className="card" style={{ marginBottom: 16, textAlign: 'left' }}>
-						<h2>{selectedRun.title}</h2>
-						<div>Start: {selectedRun.startDate || 'N/A'}</div>
-						<div>End: {selectedRun.endDate || 'N/A'}</div>
-					</div>
+										<div className="card" style={{ marginBottom: 16, textAlign: 'left' }}>
+												<h2>{selectedRun.title}</h2>
+												<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+													<label>
+														Start:
+														<input
+															type="date"
+															value={selectedRun.startDate}
+															onChange={e => {
+																const newDate = e.target.value;
+																setRuns((prev: Run[]) => prev.map(run =>
+																	run.id === selectedRun.id
+																		? { ...run, startDate: newDate }
+																		: run
+																));
+															}}
+															style={{ marginLeft: 6 }}
+														/>
+													</label>
+													<label>
+														End:
+														<input
+															type="date"
+															value={selectedRun.endDate}
+															onChange={e => {
+																const newDate = e.target.value;
+																setRuns((prev: Run[]) => prev.map(run =>
+																	run.id === selectedRun.id
+																		? { ...run, endDate: newDate }
+																		: run
+																));
+															}}
+															style={{ marginLeft: 6 }}
+														/>
+													</label>
+												</div>
+										</div>
 					<form className="card" onSubmit={handleAddTransaction} style={{ marginBottom: 24 }}>
 						<select name="type" value={form.type} onChange={handleFormChange} style={{ marginRight: 8 }}>
 							<option value="income">Income</option>
