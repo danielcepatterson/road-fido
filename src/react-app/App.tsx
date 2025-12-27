@@ -255,14 +255,7 @@ const handleDayTimeChange = (date: string, value: string) => {
 										// Show pay and gas expense (user configurable)
 										const showPay = selectedRun?.showPays?.[date] ?? '200';
 										const gasExpense = selectedRun?.gasEstimates?.[date] ?? '75';
-										let autoLine: { type: 'income' | 'expense'; amount: number; label: string } | null = null;
-										if (dayType === 'Show') {
-											autoLine = { type: 'income', amount: Number(showPay), label: 'Show Pay' };
-										} else if (dayType === 'Travel') {
-											autoLine = { type: 'expense', amount: Number(gasExpense), label: 'Estimated Gas' };
-										} else if (dayType === 'Travel/Show') {
-											autoLine = { type: 'income', amount: Number(showPay), label: 'Show Pay' };
-										}
+										// autoLine is no longer needed; logic is handled inline below
 										return (
 											<div
 												key={date}
