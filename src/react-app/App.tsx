@@ -8,7 +8,13 @@ function App() {
 
 
 	type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
-	type Run = { id: string; title: string; transactions: Transaction[] };
+	type Run = {
+		id: string;
+		title: string;
+		startDate: string;
+		endDate: string;
+		transactions: Transaction[];
+	};
 
 	const [runs, setRuns] = useState<Run[]>(() => {
 		const saved = localStorage.getItem('runs');
@@ -19,6 +25,8 @@ function App() {
 		return saved || null;
 	});
 	const [newRunTitle, setNewRunTitle] = useState('');
+	const [newRunStartDate, setNewRunStartDate] = useState('');
+	const [newRunEndDate, setNewRunEndDate] = useState('');
 	const [form, setForm] = useState<{ type: 'income' | 'expense'; description: string; amount: string }>({
 		type: 'expense',
 		description: '',
@@ -39,10 +47,18 @@ function App() {
 		e.preventDefault();
 		if (!newRunTitle.trim()) return;
 		const id = Date.now().toString();
-		const newRun: Run = { id, title: newRunTitle.trim(), transactions: [] };
+		const newRun: Run = {
+			id,
+			title: newRunTitle.trim(),
+			startDate: newRunStartDate,
+			endDate: newRunEndDate,
+			transactions: []
+		};
 		setRuns(prev => [newRun, ...prev]);
 		setSelectedRunId(id);
 		setNewRunTitle('');
+		setNewRunStartDate('');
+		setNewRunEndDate('');
 	};
 
 	const handleSelectRun = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -70,12 +86,28 @@ function App() {
 	return (
 		<>
 			<h1>Road Trip Income & Expense Tracker</h1>
-			<form onSubmit={handleCreateRun} className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+			<form onSubmit={handleCreateRun} className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
 				<input
 					value={newRunTitle}
 					onChange={e => setNewRunTitle(e.target.value)}
 					placeholder="New Run Title"
-					style={{ flex: 1 }}
+					style={{ flex: 2, minWidth: 120 }}
+					required
+				/>
+				<input
+					type="date"
+					value={newRunStartDate}
+					onChange={e => setNewRunStartDate(e.target.value)}
+					placeholder="Start Date"
+					style={{ flex: 1, minWidth: 120 }}
+					required
+				/>
+				<input
+					type="date"
+					value={newRunEndDate}
+					onChange={e => setNewRunEndDate(e.target.value)}
+					placeholder="End Date"
+					style={{ flex: 1, minWidth: 120 }}
 					required
 				/>
 				<button type="submit">Create Run</button>
@@ -93,6 +125,11 @@ function App() {
 			</div>
 			{selectedRun ? (
 				<>
+					<div className="card" style={{ marginBottom: 16, textAlign: 'left' }}>
+						<h2>{selectedRun.title}</h2>
+						<div>Start: {selectedRun.startDate || 'N/A'}</div>
+						<div>End: {selectedRun.endDate || 'N/A'}</div>
+					</div>
 					<form className="card" onSubmit={handleAddTransaction} style={{ marginBottom: 24 }}>
 						<select name="type" value={form.type} onChange={handleFormChange} style={{ marginRight: 8 }}>
 							<option value="income">Income</option>
