@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-// ...copy all types and helpers from App.tsx...
+// ...copy all types and helpers from App.tsx....
 
 // This is a read-only calendar view for a run
 export default function CalendarView({ run }: { run: any }) {
