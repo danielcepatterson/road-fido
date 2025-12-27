@@ -16,7 +16,19 @@ function App() {
 		endDate: string;
 		transactions: Transaction[];
 		dayTypes?: Record<string, DayType>;
+		dayTimes?: Record<string, string>; // date -> time string (e.g. '08:00')
 	};
+const handleDayTimeChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				dayTimes: { ...run.dayTimes, [date]: value },
+			}
+			: run
+	));
+};
 
 	const [runs, setRuns] = useState<Run[]>(() => {
 		const saved = localStorage.getItem('runs');
@@ -214,6 +226,7 @@ function App() {
 								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
 									{runDates.map(date => {
 										const dayType = selectedRun?.dayTypes?.[date] || '';
+										const dayTime = selectedRun?.dayTimes?.[date] || '';
 										return (
 											<div
 												key={date}
@@ -221,7 +234,7 @@ function App() {
 													border: '1px solid #444',
 													borderRadius: 8,
 													padding: 8,
-													minHeight: 100,
+													minHeight: 120,
 													background: getDayTypeColor(dayType),
 													color: dayType === 'Travel' || dayType === 'Travel/Show' ? '#222' : '#fff',
 													transition: 'background 0.2s',
@@ -239,6 +252,22 @@ function App() {
 													<option value="OFF">OFF</option>
 													<option value="Travel/Show">Travel/Show</option>
 												</select>
+												<div style={{ marginBottom: 6 }}>
+													<label style={{ fontSize: 12 }}>
+														{dayType === 'Show' ? 'Load-in Time:' : dayType === 'Travel' ? 'Travel Start:' : dayType === 'Travel/Show' ? 'Travel/Load-in:' : 'Time:'}
+														<input
+															type="time"
+															value={dayTime}
+															onChange={e => handleDayTimeChange(date, e.target.value)}
+															style={{ marginLeft: 4, width: 90 }}
+														/>
+													</label>
+													{dayTime && (
+														<div style={{ fontSize: 12, marginTop: 2 }}>
+															<strong>Start:</strong> {dayTime}
+														</div>
+													)}
+												</div>
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 													{(txByDate[date] || []).map(t => (
 														<li key={t.description + t.amount} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
