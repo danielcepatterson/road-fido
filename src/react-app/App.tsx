@@ -85,7 +85,9 @@ function App() {
 
 	return (
 		<>
-			<h1>Road Trip Income & Expense Tracker</h1>
+			<h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+				Road Fido <span role="img" aria-label="running dog" style={{ fontSize: '1.2em' }}>🐕‍🦺🏃‍♂️</span>
+			</h1>
 			<form onSubmit={handleCreateRun} className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
 				<input
 					value={newRunTitle}
