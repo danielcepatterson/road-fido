@@ -405,6 +405,99 @@ const handleDayTimeChange = (date: string, value: string) => {
 									})}
 								</div>
 								<h3 style={{ marginTop: 16 }}>Total: ${total.toFixed(2)}</h3>
+
+								{/* Summary Table of all income, expenses, and net */}
+								<div className="card" style={{ marginTop: 24, textAlign: 'left' }}>
+									<h2>Summary Table</h2>
+									<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
+										<thead>
+											<tr>
+												<th style={{ borderBottom: '1px solid #888', textAlign: 'left' }}>Type</th>
+												<th style={{ borderBottom: '1px solid #888', textAlign: 'left' }}>Description</th>
+												<th style={{ borderBottom: '1px solid #888', textAlign: 'right' }}>Amount</th>
+												<th style={{ borderBottom: '1px solid #888', textAlign: 'left' }}>Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											{/* Show pay and gas estimates from calendar */}
+											{runDates.map(date => {
+												const dayType = selectedRun?.dayTypes?.[date] || '';
+												const showPay = selectedRun?.showPays?.[date] ?? '200';
+												const gasExpense = selectedRun?.gasEstimates?.[date] ?? '75';
+												const venue = selectedRun?.venues?.[date] || '';
+												const from = selectedRun?.travelFrom?.[date] || '';
+												const to = selectedRun?.travelTo?.[date] || '';
+												const rows = [];
+												if (dayType === 'Show' || dayType === 'Travel/Show') {
+													rows.push({
+														type: 'Income',
+														desc: `Show Pay${venue ? ' @ ' + venue : ''}`,
+														amt: Number(showPay),
+														date,
+													});
+												}
+												if (dayType === 'Travel') {
+													rows.push({
+														type: 'Expense',
+														desc: `Estimated Gas${from || to ? ` (${from} to ${to})` : ''}`,
+														amt: -Number(gasExpense),
+														date,
+													});
+												}
+												return rows.map((row, i) => (
+													<tr key={date + row.type + i}>
+														<td>{row.type}</td>
+														<td>{row.desc}</td>
+														<td style={{ textAlign: 'right', color: row.type === 'Income' ? 'lightgreen' : 'salmon' }}>
+															{row.amt < 0 ? '-' : ''}${Math.abs(row.amt).toFixed(2)}
+														</td>
+														<td>{row.date}</td>
+													</tr>
+												));
+											})}
+											{/* User-entered transactions */}
+											{selectedRun?.transactions.map((t, i) => {
+												// Try to extract date from description
+												const match = t.description.match(/^(\d{4}-\d{2}-\d{2}):/);
+												const date = match ? match[1] : '';
+												return (
+													<tr key={i + t.description}>
+														<td>{t.type === 'income' ? 'Income' : 'Expense'}</td>
+														<td>{t.description.replace(/^(\d{4}-\d{2}-\d{2}):/, '')}</td>
+														<td style={{ textAlign: 'right', color: t.type === 'income' ? 'lightgreen' : 'salmon' }}>
+															{t.type === 'expense' ? '-' : ''}${t.amount.toFixed(2)}
+														</td>
+														<td>{date}</td>
+													</tr>
+												);
+											})}
+										</tbody>
+										<tfoot>
+											<tr>
+												<td colSpan={2} style={{ fontWeight: 'bold', textAlign: 'right' }}>Net:</td>
+												<td style={{ fontWeight: 'bold', textAlign: 'right' }}>
+													${(() => {
+														let net = 0;
+														runDates.forEach(date => {
+															const dayType = selectedRun?.dayTypes?.[date] || '';
+															const showPay = Number(selectedRun?.showPays?.[date] ?? '200');
+															const gasExpense = Number(selectedRun?.gasEstimates?.[date] ?? '75');
+															if (dayType === 'Show' || dayType === 'Travel/Show') net += showPay;
+															if (dayType === 'Travel') net -= gasExpense;
+														});
+														if (selectedRun) {
+															selectedRun.transactions.forEach(t => {
+																net += t.type === 'income' ? t.amount : -t.amount;
+															});
+														}
+														return net.toFixed(2);
+													})()}
+												</td>
+												<td></td>
+											</tr>
+										</tfoot>
+									</table>
+								</div>
 						</div>
 				</>
 			) : (
