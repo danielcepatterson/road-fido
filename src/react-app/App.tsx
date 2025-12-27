@@ -8,12 +8,14 @@ function App() {
 
 
 	type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
+	type Lodging = { date: string; location: string; cost: string };
 	type Run = {
 		id: string;
 		title: string;
 		startDate: string;
 		endDate: string;
 		transactions: Transaction[];
+		lodging: Lodging[];
 	};
 
 	const [runs, setRuns] = useState<Run[]>(() => {
@@ -32,6 +34,7 @@ function App() {
 		description: '',
 		amount: '',
 	});
+	const [lodgingEdits, setLodgingEdits] = useState<Record<string, { location: string; cost: string }>>({});
 
 	// Save runs and selectedRunId to localStorage
 	useEffect(() => {
@@ -45,14 +48,22 @@ function App() {
 
 	const handleCreateRun = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!newRunTitle.trim()) return;
+		if (!newRunTitle.trim() || !newRunStartDate || !newRunEndDate) return;
+		// Generate lodging line items for each day in the range
+		const start = new Date(newRunStartDate);
+		const end = new Date(newRunEndDate);
+		const lodging: Lodging[] = [];
+		for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+			lodging.push({ date: d.toISOString().slice(0, 10), location: '', cost: '' });
+		}
 		const id = Date.now().toString();
 		const newRun: Run = {
 			id,
 			title: newRunTitle.trim(),
 			startDate: newRunStartDate,
 			endDate: newRunEndDate,
-			transactions: []
+			transactions: [],
+			lodging,
 		};
 		setRuns(prev => [newRun, ...prev]);
 		setSelectedRunId(id);
@@ -60,6 +71,35 @@ function App() {
 		setNewRunStartDate('');
 		setNewRunEndDate('');
 	};
+const handleLodgingChange = (date: string, field: 'location' | 'cost', value: string) => {
+	setLodgingEdits(prev => ({
+		...prev,
+		[date]: {
+			...prev[date],
+			[field]: value,
+		},
+	}));
+};
+
+const handleSaveLodging = (date: string) => {
+	if (!selectedRun) return;
+	const edit = lodgingEdits[date];
+	if (!edit) return;
+	setRuns(prev => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+					...run,
+					lodging: run.lodging.map(l =>
+						l.date === date ? { ...l, ...edit } : l
+					),
+				}
+			: run
+	));
+	setLodgingEdits(prev => {
+		const { [date]: _, ...rest } = prev;
+		return rest;
+	});
+};
 
 	const handleSelectRun = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelectedRunId(e.target.value);
@@ -131,6 +171,51 @@ function App() {
 						<h2>{selectedRun.title}</h2>
 						<div>Start: {selectedRun.startDate || 'N/A'}</div>
 						<div>End: {selectedRun.endDate || 'N/A'}</div>
+					</div>
+					<div className="card" style={{ marginBottom: 16, textAlign: 'left' }}>
+						<h3>Lodging by Day</h3>
+						<table style={{ width: '100%', borderCollapse: 'collapse' }}>
+							<thead>
+								<tr>
+									<th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Date</th>
+									<th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Location</th>
+									<th style={{ borderBottom: '1px solid #ccc', textAlign: 'left' }}>Cost</th>
+									<th style={{ borderBottom: '1px solid #ccc' }}></th>
+								</tr>
+							</thead>
+							<tbody>
+								{selectedRun.lodging.map(l => (
+									<tr key={l.date}>
+										<td>{l.date}</td>
+										<td>
+											<input
+												type="text"
+												value={lodgingEdits[l.date]?.location ?? l.location}
+												onChange={e => handleLodgingChange(l.date, 'location', e.target.value)}
+												placeholder="Lodging location"
+												style={{ width: 140 }}
+											/>
+										</td>
+										<td>
+											<input
+												type="number"
+												value={lodgingEdits[l.date]?.cost ?? l.cost}
+												onChange={e => handleLodgingChange(l.date, 'cost', e.target.value)}
+												placeholder="Cost"
+												min="0"
+												step="0.01"
+												style={{ width: 80 }}
+											/>
+										</td>
+										<td>
+											<button type="button" onClick={() => handleSaveLodging(l.date)} disabled={!(lodgingEdits[l.date]?.location || lodgingEdits[l.date]?.cost)}>
+												Save
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
 					</div>
 					<form className="card" onSubmit={handleAddTransaction} style={{ marginBottom: 24 }}>
 						<select name="type" value={form.type} onChange={handleFormChange} style={{ marginRight: 8 }}>
