@@ -242,8 +242,8 @@ function App() {
 													<option value="Travel/Show">Travel/Show</option>
 												</select>
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-													{(txByDate[date] || []).map((t, j) => (
-														<li key={j} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
+													{(txByDate[date] || []).map(t => (
+														<li key={t.description + t.amount} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
 															<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
 														</li>
 													))}
