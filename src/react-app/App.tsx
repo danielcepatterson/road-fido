@@ -53,7 +53,11 @@ function App() {
 		const start = new Date(newRunStartDate);
 		const end = new Date(newRunEndDate);
 		const lodging: Lodging[] = [];
-		for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+		for (
+			let d = new Date(start);
+			d <= end;
+			d = new Date(d.getTime() + 24 * 60 * 60 * 1000)
+		) {
 			lodging.push({ date: d.toISOString().slice(0, 10), location: '', cost: '' });
 		}
 		const id = Date.now().toString();
