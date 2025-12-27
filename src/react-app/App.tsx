@@ -22,7 +22,6 @@ function App() {
 		const saved = localStorage.getItem('runs');
 		return saved ? JSON.parse(saved) : [];
 	});
-	const [dayTypeEdits, setDayTypeEdits] = useState<Record<string, DayType>>({});
 	const handleDayTypeChange = (date: string, value: DayType) => {
 		setDayTypeEdits(prev => ({ ...prev, [date]: value }));
 		if (!selectedRun) return;
