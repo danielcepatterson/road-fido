@@ -189,7 +189,7 @@ function App() {
 						<div className="card" style={{ textAlign: 'left' }}>
 								<h2>Calendar for: {selectedRun.title}</h2>
 								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
-									{runDates.map((date, i) => (
+									{runDates.map(date => (
 										<div key={date} style={{ border: '1px solid #444', borderRadius: 8, padding: 8, minHeight: 80, background: '#222' }}>
 											<div style={{ fontWeight: 'bold', marginBottom: 4 }}>{date}</div>
 											<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
