@@ -19,7 +19,45 @@ function App() {
 		dayTimes?: Record<string, string>; // date -> time string (e.g. '08:00')
 		showPays?: Record<string, string>; // date -> show pay
 		gasEstimates?: Record<string, string>; // date -> gas estimate
+		venues?: Record<string, string>; // date -> venue name
+		travelFrom?: Record<string, string>; // date -> from location
+		travelTo?: Record<string, string>; // date -> to location
 	};
+const handleVenueChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				venues: { ...run.venues, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleTravelFromChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				travelFrom: { ...run.travelFrom, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleTravelToChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				travelTo: { ...run.travelTo, [date]: value },
+			}
+			: run
+	));
+};
 const handleShowPayChange = (date: string, value: string) => {
 	if (!selectedRun) return;
 	setRuns((prev: Run[]) => prev.map(run =>
@@ -299,30 +337,62 @@ const handleDayTimeChange = (date: string, value: string) => {
 												</div>
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 													{dayType === 'Show' || dayType === 'Travel/Show' ? (
-														<li style={{ color: 'lightgreen', fontSize: 13, marginBottom: 2 }}>
-															<strong>+${Number(showPay).toFixed(2)}</strong> Show Pay
-															<input
-																type="number"
-																min="0"
-																step="1"
-																value={showPay}
-																onChange={e => handleShowPayChange(date, e.target.value)}
-																style={{ marginLeft: 8, width: 60, fontSize: 12 }}
-															/>
-														</li>
+														<>
+															<li style={{ color: 'lightgreen', fontSize: 13, marginBottom: 2 }}>
+																<strong>+${Number(showPay).toFixed(2)}</strong> Show Pay
+																<input
+																	type="number"
+																	min="0"
+																	step="1"
+																	value={showPay}
+																	onChange={e => handleShowPayChange(date, e.target.value)}
+																	style={{ marginLeft: 8, width: 60, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2 }}>
+																<span>Venue:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.venues?.[date] || ''}
+																	onChange={e => handleVenueChange(date, e.target.value)}
+																	placeholder="Venue name"
+																	style={{ marginLeft: 8, width: 90, fontSize: 12 }}
+																/>
+															</li>
+														</>
 													) : null}
 													{dayType === 'Travel' ? (
-														<li style={{ color: 'salmon', fontSize: 13, marginBottom: 2 }}>
-															<strong>-${Number(gasExpense).toFixed(2)}</strong> Estimated Gas
-															<input
-																type="number"
-																min="0"
-																step="1"
-																value={gasExpense}
-																onChange={e => handleGasEstimateChange(date, e.target.value)}
-																style={{ marginLeft: 8, width: 60, fontSize: 12 }}
-															/>
-														</li>
+														<>
+															<li style={{ color: 'salmon', fontSize: 13, marginBottom: 2 }}>
+																<strong>-${Number(gasExpense).toFixed(2)}</strong> Estimated Gas
+																<input
+																	type="number"
+																	min="0"
+																	step="1"
+																	value={gasExpense}
+																	onChange={e => handleGasEstimateChange(date, e.target.value)}
+																	style={{ marginLeft: 8, width: 60, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2 }}>
+																<span>From:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.travelFrom?.[date] || ''}
+																	onChange={e => handleTravelFromChange(date, e.target.value)}
+																	placeholder="Start"
+																	style={{ marginLeft: 4, width: 60, fontSize: 12 }}
+																/>
+																<span style={{ margin: '0 4px' }}>to</span>
+																<input
+																	type="text"
+																	value={selectedRun?.travelTo?.[date] || ''}
+																	onChange={e => handleTravelToChange(date, e.target.value)}
+																	placeholder="Destination"
+																	style={{ width: 60, fontSize: 12 }}
+																/>
+															</li>
+														</>
 													) : null}
 													{(txByDate[date] || []).map(t => (
 														<li key={t.description + t.amount} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
