@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import "./App.css";
+import CalendarView from "./CalendarView";
 
-function App() {
+function EditRunsPage({ runs, setRuns, selectedRunId, setSelectedRunId }: any) {
 	// ...existing code...
 
 
@@ -212,8 +213,9 @@ const handleDayTimeChange = (date: string, value: string) => {
 	return (
 		<>
 			<h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-				Road Fido <span role="img" aria-label="running dog" style={{ fontSize: '1.2em' }}>🐕‍🦺🏃‍♂️</span>
+				Road Fido <span role="img" aria-label="running dog" style={{ fontSize: '1.2em' }}>🐕‍🦺🏃‍♂️</span> <span style={{ fontSize: 18, fontWeight: 400, marginLeft: 8 }}>(Edit Runs Page)</span>
 			</h1>
+			{/* ...existing code for run creation and selection... */}
 			<form onSubmit={handleCreateRun} className="card" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
 				<input
 					value={newRunTitle}
@@ -574,6 +576,46 @@ const handleDayTimeChange = (date: string, value: string) => {
 				<div className="card"><p>Please create and select a run to begin tracking.</p></div>
 			)}
 		</>
+
+	);
+}
+
+// Main App with page switcher
+export default function App() {
+	const [runs, setRuns] = useState<any[]>(() => {
+		const saved = localStorage.getItem('runs');
+		return saved ? JSON.parse(saved) : [];
+	});
+	const [selectedRunId, setSelectedRunId] = useState<string | null>(() => {
+		const saved = localStorage.getItem('selectedRunId');
+		return saved || null;
+	});
+	useEffect(() => {
+		localStorage.setItem('runs', JSON.stringify(runs));
+	}, [runs]);
+	useEffect(() => {
+		if (selectedRunId) localStorage.setItem('selectedRunId', selectedRunId);
+	}, [selectedRunId]);
+	const selectedRun = runs.find(r => r.id === selectedRunId) || null;
+	const [page, setPage] = useState<'edit' | 'calendar'>('edit');
+
+	return (
+		<div>
+			<div style={{ display: 'flex', gap: 12, margin: '16px 0', justifyContent: 'center' }}>
+				<button onClick={() => setPage('edit')} style={{ fontWeight: page === 'edit' ? 'bold' : undefined }}>Edit Runs Page</button>
+				<button onClick={() => setPage('calendar')} style={{ fontWeight: page === 'calendar' ? 'bold' : undefined }}>Calendar View</button>
+			</div>
+			{page === 'edit' ? (
+				<EditRunsPage
+					runs={runs}
+					setRuns={setRuns}
+					selectedRunId={selectedRunId}
+					setSelectedRunId={setSelectedRunId}
+				/>
+			) : (
+				selectedRun ? <CalendarView run={selectedRun} /> : <div className="card">Please select a run to view the calendar.</div>
+			)}
+		</div>
 	);
 }
 
