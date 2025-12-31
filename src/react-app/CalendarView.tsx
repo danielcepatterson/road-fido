@@ -58,6 +58,8 @@ export default function CalendarView({ run }: { run: any }) {
             const venue = run.venues?.[date] || '';
             const from = run.travelFrom?.[date] || '';
             const to = run.travelTo?.[date] || '';
+            const lodgingType = run.lodgingType?.[date] || '';
+            const lodgingCost = run.lodgingCost?.[date] || '';
             return (
               <div
                 key={date}
@@ -77,6 +79,24 @@ export default function CalendarView({ run }: { run: any }) {
                   {dayTime && <span style={{ marginLeft: 8 }}>Start: {dayTime}</span>}
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {/* Lodging line item */}
+                  <li style={{ fontSize: 13, marginBottom: 2 }}>
+                    <span style={{ fontWeight: 500 }}>Lodging:</span>
+                    <span style={{ marginLeft: 6 }}>
+                      {lodgingType ? (
+                        <>
+                          <span style={{ textTransform: 'capitalize' }}>{lodgingType}</span>
+                          {lodgingCost && (
+                            <span style={{ marginLeft: 8 }}>
+                              <strong>${Number(lodgingCost).toFixed(2)}</strong>
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span style={{ color: '#aaa' }}>N/A</span>
+                      )}
+                    </span>
+                  </li>
                   {(dayType === 'Show' || dayType === 'Travel/Show') && (
                     <>
                       <li style={{ color: 'lightgreen', fontSize: 13, marginBottom: 2 }}>
