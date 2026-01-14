@@ -1,6 +1,15 @@
 import { Hono } from "hono";
 
-const app = new Hono<{ Bindings: Env }>();
+// Define environment variables type
+interface GoogleEnv {
+	GOOGLE_CLIENT_ID: string;
+	GOOGLE_CLIENT_SECRET: string;
+	GOOGLE_REDIRECT_URI: string;
+}
+
+type Bindings = GoogleEnv & Env;
+
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.get("/api/", (c) => c.json({ name: "Cloudflare" }));
 
