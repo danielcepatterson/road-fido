@@ -400,7 +400,7 @@ export default function CalendarView({ run }: { run: any }) {
               </div>
 
               {/* Show Information */}
-              {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
+              {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && run.lineItemVisibility?.showPay !== false && (
                 <div>
                   <h3 style={{ borderBottom: '2px solid #28a745', paddingBottom: 8 }}>Show Info</h3>
                   <div style={{ fontSize: 13 }}>
@@ -418,7 +418,7 @@ export default function CalendarView({ run }: { run: any }) {
               )}
 
               {/* Venue Details */}
-              {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
+              {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && run.lineItemVisibility?.venue !== false && (
                 <div>
                   <button
                     onClick={() => setExpandedVenueDetails(prev => ({ ...prev, [selectedDate!]: !prev[selectedDate!] }))}
@@ -463,7 +463,7 @@ export default function CalendarView({ run }: { run: any }) {
               )}
 
               {/* Travel Information */}
-              {(run.dayTypes?.[selectedDate] === 'Travel' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
+              {(run.dayTypes?.[selectedDate] === 'Travel' || run.dayTypes?.[selectedDate] === 'Travel/Show') && run.lineItemVisibility?.travel !== false && (
                 <div>
                   <h3 style={{ borderBottom: '2px solid #ffc107', paddingBottom: 8 }}>Travel Info</h3>
                   <div style={{ fontSize: 13 }}>
@@ -481,49 +481,55 @@ export default function CalendarView({ run }: { run: any }) {
               )}
 
               {/* Lodging Information */}
-              <div>
-                <h3 style={{ borderBottom: '2px solid #007bff', paddingBottom: 8 }}>Lodging</h3>
-                <div style={{ fontSize: 13 }}>
-                  <p>
-                    <strong>Accommodation:</strong> {run.lodgingAccommodations?.[selectedDate] || 'Not set'}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {run.lodgingAddresses?.[selectedDate] || 'Not set'}
-                  </p>
-                  <p>
-                    <strong>Host Name:</strong> {run.hostNames?.[selectedDate] || 'Not set'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Access Information */}
-              <div>
-                <h3 style={{ borderBottom: '2px solid #17a2b8', paddingBottom: 8 }}>Access Info</h3>
-                <div style={{ fontSize: 13 }}>
-                  <p>
-                    <strong>Passcode/Instructions:</strong>
-                  </p>
-                  <div style={{ backgroundColor: '#333', padding: 8, borderRadius: 4, wordBreak: 'break-word' }}>
-                    {run.passcodes?.[selectedDate] || 'Not set'}
+              {run.lineItemVisibility?.lodging !== false && (
+                <div>
+                  <h3 style={{ borderBottom: '2px solid #007bff', paddingBottom: 8 }}>Lodging</h3>
+                  <div style={{ fontSize: 13 }}>
+                    <p>
+                      <strong>Accommodation:</strong> {run.lodgingAccommodations?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>Address:</strong> {run.lodgingAddresses?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>Host Name:</strong> {run.hostNames?.[selectedDate] || 'Not set'}
+                    </p>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Access Information */}
+              {run.lineItemVisibility?.lodging !== false && (
+                <div>
+                  <h3 style={{ borderBottom: '2px solid #17a2b8', paddingBottom: 8 }}>Access Info</h3>
+                  <div style={{ fontSize: 13 }}>
+                    <p>
+                      <strong>Passcode/Instructions:</strong>
+                    </p>
+                    <div style={{ backgroundColor: '#333', padding: 8, borderRadius: 4, wordBreak: 'break-word' }}>
+                      {run.passcodes?.[selectedDate] || 'Not set'}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Vehicle Information */}
-              <div>
-                <h3 style={{ borderBottom: '2px solid #6c757d', paddingBottom: 8 }}>Transportation</h3>
-                <div style={{ fontSize: 13 }}>
-                  <p>
-                    <strong>Vehicle:</strong> {run.vehicles?.[selectedDate] || 'Not set'}
-                  </p>
-                  <p>
-                    <strong>Head Count:</strong> {run.headCounts?.[selectedDate] || 'Not set'}
-                  </p>
+              {run.lineItemVisibility?.lodging !== false && (
+                <div>
+                  <h3 style={{ borderBottom: '2px solid #6c757d', paddingBottom: 8 }}>Transportation</h3>
+                  <div style={{ fontSize: 13 }}>
+                    <p>
+                      <strong>Vehicle:</strong> {run.vehicles?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>Head Count:</strong> {run.headCounts?.[selectedDate] || 'Not set'}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Transactions */}
-              {(txByDate[selectedDate] || []).length > 0 && (
+              {run.lineItemVisibility?.transactions !== false && (txByDate[selectedDate] || []).length > 0 && (
                 <div style={{ gridColumn: '1 / -1' }}>
                   <h3 style={{ borderBottom: '2px solid #28a745', paddingBottom: 8 }}>Transactions</h3>
                   <div style={{ fontSize: 13 }}>

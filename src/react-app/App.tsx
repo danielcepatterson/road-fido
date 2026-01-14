@@ -8,6 +8,13 @@ import { DocumentManager, Document } from "./DocumentManager";
 
 type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
 type DayType = 'Travel' | 'Show' | 'OFF' | 'Travel/Show' | '';
+type LineItemVisibility = {
+  showPay?: boolean;
+  venue?: boolean;
+  travel?: boolean;
+  lodging?: boolean;
+  transactions?: boolean;
+};
 type Run = {
   id: string;
   title: string;
@@ -44,6 +51,7 @@ type Run = {
   travelFrom?: Record<string, string>;
   travelTo?: Record<string, string>;
   documents?: Document[];
+  lineItemVisibility?: LineItemVisibility;
 };
 
 interface EditRunsPageProps {
@@ -558,6 +566,81 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 				<>
 										<div className="card" style={{ marginBottom: 16, textAlign: 'left' }}>
 												<h2>{selectedRun.title}</h2>
+												<div style={{ marginBottom: 12, padding: 8, backgroundColor: '#333', borderRadius: 4 }}>
+													<p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: 12 }}>📺 Calendar View Display:</p>
+													<div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+														<label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+															<input
+																type="checkbox"
+																checked={selectedRun.lineItemVisibility?.showPay !== false}
+																onChange={e => {
+																	setRuns(prev => prev.map(run =>
+																		run.id === selectedRun.id
+																			? { ...run, lineItemVisibility: { ...run.lineItemVisibility, showPay: e.target.checked } }
+																			: run
+																	));
+																}}
+															/>
+															Show Pay
+														</label>
+														<label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+															<input
+																type="checkbox"
+																checked={selectedRun.lineItemVisibility?.venue !== false}
+																onChange={e => {
+																	setRuns(prev => prev.map(run =>
+																		run.id === selectedRun.id
+																			? { ...run, lineItemVisibility: { ...run.lineItemVisibility, venue: e.target.checked } }
+																			: run
+																	));
+																}}
+															/>
+															Venue Details
+														</label>
+														<label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+															<input
+																type="checkbox"
+																checked={selectedRun.lineItemVisibility?.travel !== false}
+																onChange={e => {
+																	setRuns(prev => prev.map(run =>
+																		run.id === selectedRun.id
+																			? { ...run, lineItemVisibility: { ...run.lineItemVisibility, travel: e.target.checked } }
+																			: run
+																	));
+																}}
+															/>
+															Travel Details
+														</label>
+														<label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+															<input
+																type="checkbox"
+																checked={selectedRun.lineItemVisibility?.lodging !== false}
+																onChange={e => {
+																	setRuns(prev => prev.map(run =>
+																		run.id === selectedRun.id
+																			? { ...run, lineItemVisibility: { ...run.lineItemVisibility, lodging: e.target.checked } }
+																			: run
+																	));
+																}}
+															/>
+															Lodging Details
+														</label>
+														<label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+															<input
+																type="checkbox"
+																checked={selectedRun.lineItemVisibility?.transactions !== false}
+																onChange={e => {
+																	setRuns(prev => prev.map(run =>
+																		run.id === selectedRun.id
+																			? { ...run, lineItemVisibility: { ...run.lineItemVisibility, transactions: e.target.checked } }
+																			: run
+																	));
+																}}
+															/>
+															Transactions
+														</label>
+													</div>
+												</div>
 												<div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
 													<label>
 														Start:
