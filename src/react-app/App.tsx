@@ -412,6 +412,7 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 	const [newRunTitle, setNewRunTitle] = useState('');
 	const [newRunStartDate, setNewRunStartDate] = useState('');
 	const [newRunEndDate, setNewRunEndDate] = useState('');
+	const [expandedShowDetails, setExpandedShowDetails] = useState<Record<string, boolean>>({});
 	const [form, setForm] = useState<{ type: 'income' | 'expense'; description: string; amount: string }>({
 	  type: 'expense',
 	  description: '',
@@ -670,62 +671,86 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 												)}
 												{(dayType === 'Show' || dayType === 'Travel/Show') && (
 													<div style={{ marginBottom: 8, padding: 8, backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 4 }}>
-														<div style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6, color: 'lightblue' }}>📋 Show Details</div>
+														<button
+															onClick={() => setExpandedShowDetails(prev => ({ ...prev, [date]: !prev[date] }))}
+															style={{
+																width: '100%',
+																padding: 6,
+																marginBottom: 8,
+																backgroundColor: 'rgba(100, 150, 255, 0.3)',
+																color: '#fff',
+																border: '1px solid rgba(100, 150, 255, 0.5)',
+																borderRadius: 3,
+																cursor: 'pointer',
+																fontSize: 11,
+																fontWeight: 'bold',
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'space-between',
+															}}
+														>
+															<span>📋 Show Details</span>
+															<span>{expandedShowDetails[date] ? '▼' : '▶'}</span>
+														</button>
 														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>🎵 Soundcheck:</label>
-															<input type="time" value={selectedRun?.soundcheckTimes?.[date] || ''} onChange={e => handleSoundcheckTimeChange(date, e.target.value)} style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>🎸 # of Sets:</label>
-															<input type="number" min="0" value={selectedRun?.numberOfSets?.[date] || ''} onChange={e => handleNumberOfSetsChange(date, e.target.value)} placeholder="1" style={{ marginLeft: 4, width: 40, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>📝 Load-in Notes:</label>
-															<input type="text" value={selectedRun?.loadInNotes?.[date] || ''} onChange={e => handleLoadInNotesChange(date, e.target.value)} placeholder="Notes" style={{ marginLeft: 4, width: 80, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>🚗 Parking:</label>
-															<input type="text" value={selectedRun?.loadInParking?.[date] || ''} onChange={e => handleLoadInParkingChange(date, e.target.value)} placeholder="Parking info" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>📞 Load-in Contact:</label>
-															<input type="text" value={selectedRun?.loadInContact?.[date] || ''} onChange={e => handleLoadInContactChange(date, e.target.value)} placeholder="Phone/Name" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>🚐 Van Call:</label>
-															<input type="time" value={selectedRun?.vanCall?.[date] || ''} onChange={e => handleVanCallChange(date, e.target.value)} style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>⏰ Arrival Time:</label>
-															<input type="time" value={selectedRun?.arrivalTime?.[date] || ''} onChange={e => handleArrivalTimeChange(date, e.target.value)} style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>🍽️ Hospitality:</label>
-															<input type="text" value={selectedRun?.hospitality?.[date] || ''} onChange={e => handleHospitalityChange(date, e.target.value)} placeholder="Details" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>🎟️ Ticket Link:</label>
-															<input type="text" value={selectedRun?.ticketLink?.[date] || ''} onChange={e => handleTicketLinkChange(date, e.target.value)} placeholder="URL" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 4 }}>
-															<label style={{ fontSize: 11 }}>💵 Ticket Cost:</label>
-															<input type="number" min="0" value={selectedRun?.ticketCost?.[date] || ''} onChange={e => handleTicketCostChange(date, e.target.value)} placeholder="$" style={{ marginLeft: 4, width: 50, fontSize: 11 }} />
-														</div>
-														
-														<div style={{ marginBottom: 0 }}>
-															<label style={{ fontSize: 11 }}>🎤 Merch Sales:</label>
-															<input type="text" value={selectedRun?.merchSales?.[date] || ''} onChange={e => handleMerchSalesChange(date, e.target.value)} placeholder="Notes/Amount" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
-														</div>
+														{expandedShowDetails[date] && (
+															<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+																<div>
+																	<label style={{ fontSize: 11 }}>🎵 Soundcheck:</label>
+																	<input type="time" value={selectedRun?.soundcheckTimes?.[date] || ''} onChange={e => handleSoundcheckTimeChange(date, e.target.value)} style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>🎸 # of Sets:</label>
+																	<input type="number" min="0" value={selectedRun?.numberOfSets?.[date] || ''} onChange={e => handleNumberOfSetsChange(date, e.target.value)} placeholder="1" style={{ marginLeft: 4, width: '70%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>📝 Load-in Notes:</label>
+																	<input type="text" value={selectedRun?.loadInNotes?.[date] || ''} onChange={e => handleLoadInNotesChange(date, e.target.value)} placeholder="Notes" style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>🚗 Parking:</label>
+																	<input type="text" value={selectedRun?.loadInParking?.[date] || ''} onChange={e => handleLoadInParkingChange(date, e.target.value)} placeholder="Parking info" style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>📞 Load-in Contact:</label>
+																	<input type="text" value={selectedRun?.loadInContact?.[date] || ''} onChange={e => handleLoadInContactChange(date, e.target.value)} placeholder="Phone/Name" style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>🚐 Van Call:</label>
+																	<input type="time" value={selectedRun?.vanCall?.[date] || ''} onChange={e => handleVanCallChange(date, e.target.value)} style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>⏰ Arrival Time:</label>
+																	<input type="time" value={selectedRun?.arrivalTime?.[date] || ''} onChange={e => handleArrivalTimeChange(date, e.target.value)} style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>🍽️ Hospitality:</label>
+																	<input type="text" value={selectedRun?.hospitality?.[date] || ''} onChange={e => handleHospitalityChange(date, e.target.value)} placeholder="Details" style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>🎟️ Ticket Link:</label>
+																	<input type="text" value={selectedRun?.ticketLink?.[date] || ''} onChange={e => handleTicketLinkChange(date, e.target.value)} placeholder="URL" style={{ marginLeft: 4, width: '90%', fontSize: 11 }} />
+																</div>
+																
+																<div>
+																	<label style={{ fontSize: 11 }}>💵 Ticket Cost:</label>
+																	<input type="number" min="0" value={selectedRun?.ticketCost?.[date] || ''} onChange={e => handleTicketCostChange(date, e.target.value)} placeholder="$" style={{ marginLeft: 4, width: '70%', fontSize: 11 }} />
+																</div>
+																
+																<div style={{ gridColumn: '1 / -1' }}>
+																	<label style={{ fontSize: 11 }}>🎤 Merch Sales:</label>
+																	<input type="text" value={selectedRun?.merchSales?.[date] || ''} onChange={e => handleMerchSalesChange(date, e.target.value)} placeholder="Notes/Amount" style={{ marginLeft: 4, width: '100%', fontSize: 11 }} />
+																</div>
+															</div>
+														)}
 													</div>
 												)}
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
