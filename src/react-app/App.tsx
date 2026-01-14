@@ -414,6 +414,7 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 	const [newRunStartDate, setNewRunStartDate] = useState('');
 	const [newRunEndDate, setNewRunEndDate] = useState('');
 	const [expandedShowDetails, setExpandedShowDetails] = useState<Record<string, boolean>>({});
+	const [expandedVenueDetails, setExpandedVenueDetails] = useState<Record<string, boolean>>({});
 	const [form, setForm] = useState<{ type: 'income' | 'expense'; description: string; amount: string }>({
 	  type: 'expense',
 	  description: '',
@@ -768,56 +769,66 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 																	style={{ marginLeft: 8, width: 60, fontSize: 12 }}
 																/>
 															</li>
-															<li style={{ fontSize: 13, marginBottom: 2 }}>
-																<span style={{ fontWeight: 'bold' }}>Venue:</span>
-																<input
-																	type="text"
-																	value={selectedRun?.venues?.[date] || ''}
-																	onChange={e => handleVenueChange(date, e.target.value)}
-																	placeholder="Venue name"
-																	style={{ marginLeft: 8, width: 85, fontSize: 12 }}
-																/>
+															<li 
+																style={{ fontSize: 13, marginBottom: 2, cursor: 'pointer' }}
+																onClick={() => setExpandedVenueDetails(prev => ({ ...prev, [date]: !prev[date] }))}
+															>
+																<span style={{ fontWeight: 'bold' }}>Venue Details {expandedVenueDetails[date] ? '▼' : '▶'}</span>
 															</li>
-															<li style={{ fontSize: 13, marginBottom: 2 }}>
-																<span style={{ fontSize: 11 }}>City:</span>
-																<input
-																	type="text"
-																	value={selectedRun?.venueCities?.[date] || ''}
-																	onChange={e => handleVenueCityChange(date, e.target.value)}
-																	placeholder="City"
-																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-																/>
-															</li>
-															<li style={{ fontSize: 13, marginBottom: 2 }}>
-																<span style={{ fontSize: 11 }}>Address:</span>
-																<input
-																	type="text"
-																	value={selectedRun?.venueAddresses?.[date] || ''}
-																	onChange={e => handleVenueAddressChange(date, e.target.value)}
-																	placeholder="Address"
-																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-																/>
-															</li>
-															<li style={{ fontSize: 13, marginBottom: 2 }}>
-																<span style={{ fontSize: 11 }}>Contact:</span>
-																<input
-																	type="text"
-																	value={selectedRun?.venueContacts?.[date] || ''}
-																	onChange={e => handleVenueContactChange(date, e.target.value)}
-																	placeholder="Phone/Email"
-																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-																/>
-															</li>
-															<li style={{ fontSize: 13, marginBottom: 2 }}>
-																<span style={{ fontSize: 11 }}>Support/Post:</span>
-																<input
-																	type="text"
-																	value={selectedRun?.supportBands?.[date] || ''}
-																	onChange={e => handleSupportBandChange(date, e.target.value)}
-																	placeholder="Band names"
-																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-																/>
-															</li>
+															{expandedVenueDetails[date] && (
+																<>
+																	<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																		<span style={{ fontWeight: 'bold' }}>Venue:</span>
+																		<input
+																			type="text"
+																			value={selectedRun?.venues?.[date] || ''}
+																			onChange={e => handleVenueChange(date, e.target.value)}
+																			placeholder="Venue name"
+																			style={{ marginLeft: 8, width: 85, fontSize: 12 }}
+																		/>
+																	</li>
+																	<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																		<span style={{ fontSize: 11 }}>City:</span>
+																		<input
+																			type="text"
+																			value={selectedRun?.venueCities?.[date] || ''}
+																			onChange={e => handleVenueCityChange(date, e.target.value)}
+																			placeholder="City"
+																			style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																		/>
+																	</li>
+																	<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																		<span style={{ fontSize: 11 }}>Address:</span>
+																		<input
+																			type="text"
+																			value={selectedRun?.venueAddresses?.[date] || ''}
+																			onChange={e => handleVenueAddressChange(date, e.target.value)}
+																			placeholder="Address"
+																			style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																		/>
+																	</li>
+																	<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																		<span style={{ fontSize: 11 }}>Contact:</span>
+																		<input
+																			type="text"
+																			value={selectedRun?.venueContacts?.[date] || ''}
+																			onChange={e => handleVenueContactChange(date, e.target.value)}
+																			placeholder="Phone/Email"
+																			style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																		/>
+																	</li>
+																	<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																		<span style={{ fontSize: 11 }}>Support/Post:</span>
+																		<input
+																			type="text"
+																			value={selectedRun?.supportBands?.[date] || ''}
+																			onChange={e => handleSupportBandChange(date, e.target.value)}
+																			placeholder="Band names"
+																			style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																		/>
+																	</li>
+																</>
+															)}
 														</>
 													) : null}
 													{dayType === 'Travel' ? (
