@@ -1,10 +1,106 @@
-// import { useState, useEffect } from "react"; // Removed unused imports
+import { useState, useEffect } from "react";
 import "./App.css";
+import { 
+  getGoogleAuthUrl, 
+  exchangeAuthCode, 
+  createRunCalendarEvents, 
+  getStoredTokens, 
+  isTokenExpired,
+  refreshAccessToken,
+  storeTokens,
+  clearTokens 
+} from "./googleCalendarUtils";
 
 // ...copy all types and helpers from App.tsx....
 
 // This is a read-only calendar view for a run
 export default function CalendarView({ run }: { run: any }) {
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
+
+  // Check for authorization on mount and handle OAuth callback
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Check if we're in the OAuth callback flow
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (code) {
+        try {
+          setIsLoading(true);
+          const tokens = await exchangeAuthCode(code);
+          const expiresAt = Date.now() + tokens.expiresIn * 1000;
+          storeTokens(tokens.accessToken, tokens.refreshToken, expiresAt);
+          setIsAuthorized(true);
+          setExportStatus("✅ Successfully connected to Google Calendar!");
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (error) {
+          console.error("OAuth error:", error);
+          setExportStatus("❌ Failed to connect to Google Calendar");
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        // Check if we have valid tokens
+        const tokens = getStoredTokens();
+        if (tokens.accessToken && !isTokenExpired(tokens.expiresAt)) {
+          setIsAuthorized(true);
+        }
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  // Authorize with Google Calendar
+  const handleAuthorize = () => {
+    window.location.href = getGoogleAuthUrl();
+  };
+
+  // Export run to Google Calendar
+  const handleExportToGoogle = async () => {
+    setIsLoading(true);
+    setExportStatus(null);
+
+    try {
+      let tokens = getStoredTokens();
+
+      // Check if token needs refresh
+      if (isTokenExpired(tokens.expiresAt)) {
+        if (!tokens.refreshToken) {
+          throw new Error("No refresh token available, please re-authorize");
+        }
+        const newTokens = await refreshAccessToken(tokens.refreshToken);
+        const expiresAt = Date.now() + newTokens.expiresIn * 1000;
+        storeTokens(newTokens.accessToken, tokens.refreshToken, expiresAt);
+        tokens = { ...tokens, accessToken: newTokens.accessToken };
+      }
+
+      if (!tokens.accessToken) {
+        throw new Error("No access token available");
+      }
+
+      setExportStatus("⏳ Exporting to Google Calendar...");
+      const result = await createRunCalendarEvents(tokens.accessToken, run);
+
+      const successCount = result.results.filter((r: any) => r.success).length;
+      setExportStatus(`✅ Successfully exported ${successCount} events to Google Calendar!`);
+    } catch (error) {
+      console.error("Export error:", error);
+      setExportStatus(`❌ Export failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    clearTokens();
+    setIsAuthorized(false);
+    setExportStatus(null);
+  };
+
   // Helper: get all dates in the run as array of strings (YYYY-MM-DD)
   function getRunDates(run: any): string[] {
     if (!run.startDate || !run.endDate) return [];
@@ -44,6 +140,74 @@ export default function CalendarView({ run }: { run: any }) {
       <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
         {run.title} <span role="img" aria-label="calendar" style={{ fontSize: '1.2em' }}>📅</span>
       </h1>
+      
+      {/* Google Calendar Integration Section */}
+      <div className="card" style={{ marginBottom: 16, textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+        {!isAuthorized ? (
+          <div>
+            <p style={{ marginBottom: 10 }}>Connect to Google Calendar to export this run's events</p>
+            <button
+              onClick={handleAuthorize}
+              disabled={isLoading}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: '#4285f4',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                fontSize: 14,
+                fontWeight: 'bold',
+              }}
+            >
+              {isLoading ? '⏳ Connecting...' : '🔗 Connect Google Calendar'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <p style={{ marginBottom: 10, color: '#22863a' }}>✅ Connected to Google Calendar</p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                onClick={handleExportToGoogle}
+                disabled={isLoading}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 4,
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                }}
+              >
+                {isLoading ? '⏳ Exporting...' : '📤 Export to Google Calendar'}
+              </button>
+              <button
+                onClick={handleLogout}
+                disabled={isLoading}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 4,
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  fontSize: 14,
+                }}
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        )}
+        {exportStatus && (
+          <p style={{ marginTop: 12, fontSize: 14, color: exportStatus.includes('❌') ? '#d73a49' : '#22863a' }}>
+            {exportStatus}
+          </p>
+        )}
+      </div>
+
       <div className="card" style={{ marginBottom: 16, textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>Run Dates: {run.startDate} to {run.endDate}</div>
       </div>

@@ -11,5 +11,10 @@
 	"assets": {
 		"directory": "./dist/client",
 		"not_found_handling": "single-page-application"
+	},
+	"vars": {
+		"GOOGLE_CLIENT_ID": "YOUR_GOOGLE_CLIENT_ID",
+		"GOOGLE_CLIENT_SECRET": "YOUR_GOOGLE_CLIENT_SECRET",
+		"GOOGLE_REDIRECT_URI": "http://localhost:5173/auth/callback"
 	}
 }
