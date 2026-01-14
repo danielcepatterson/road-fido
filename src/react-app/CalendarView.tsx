@@ -20,6 +20,8 @@ export default function CalendarView({ run }: { run: any }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Check for authorization on mount and handle OAuth callback
   useEffect(() => {
@@ -152,6 +154,13 @@ export default function CalendarView({ run }: { run: any }) {
   }
   const runDates = getRunDates(run);
   const txByDate = groupTransactionsByDate(run.transactions);
+
+  // Handler to open details modal
+  const openDetailsModal = (date: string) => {
+    setSelectedDate(date);
+    setShowDetailsModal(true);
+  };
+
   return (
     <div>
       <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
@@ -255,6 +264,23 @@ export default function CalendarView({ run }: { run: any }) {
                 }}
               >
                 <div style={{ fontWeight: 'bold', marginBottom: 4 }}>{date}</div>
+                <button
+                  onClick={() => openDetailsModal(date)}
+                  style={{
+                    width: '100%',
+                    padding: '6px',
+                    marginBottom: 8,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    color: dayType === 'Travel' || dayType === 'Travel/Show' ? '#222' : '#fff',
+                    border: '1px solid currentColor',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  📋 View Details
+                </button>
                 <div style={{ marginBottom: 6, fontSize: 13 }}>
                   {dayType && <span style={{ fontWeight: 'bold' }}>{dayType}</span>}
                   {dayTime && <span style={{ marginLeft: 8 }}>Start: {dayTime}</span>}
@@ -305,6 +331,204 @@ export default function CalendarView({ run }: { run: any }) {
           })}
         </div>
       </div>
+
+      {/* Day Details Modal */}
+      {showDetailsModal && selectedDate && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            padding: 20,
+          }}
+          onClick={() => setShowDetailsModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#222',
+              color: '#fff',
+              padding: 24,
+              borderRadius: 8,
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              width: '100%',
+              maxWidth: 600,
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ margin: 0 }}>📋 Details for {selectedDate}</h2>
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                style={{
+                  backgroundColor: '#555',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                }}
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Basic Info */}
+              <div>
+                <h3 style={{ borderBottom: '2px solid #4285f4', paddingBottom: 8 }}>Basic Info</h3>
+                <div style={{ fontSize: 13 }}>
+                  <p>
+                    <strong>Day Type:</strong> {run.dayTypes?.[selectedDate] || 'Not set'}
+                  </p>
+                  <p>
+                    <strong>Time:</strong> {run.dayTimes?.[selectedDate] || 'Not set'}
+                  </p>
+                  <p>
+                    <strong>Load-in Time:</strong> {run.loadInTimes?.[selectedDate] || 'Not set'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Show Information */}
+              {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
+                <div>
+                  <h3 style={{ borderBottom: '2px solid #28a745', paddingBottom: 8 }}>Show Info</h3>
+                  <div style={{ fontSize: 13 }}>
+                    <p>
+                      <strong>Show Pay:</strong> ${run.showPays?.[selectedDate] || '200'}
+                    </p>
+                    <p>
+                      <strong>Venue:</strong> {run.venues?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>City:</strong> {run.venueCities?.[selectedDate] || 'Not set'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Venue Details */}
+              {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
+                <div>
+                  <h3 style={{ borderBottom: '2px solid #ffc107', paddingBottom: 8 }}>Venue Details</h3>
+                  <div style={{ fontSize: 13 }}>
+                    <p>
+                      <strong>Address:</strong> {run.venueAddresses?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>Contact:</strong> {run.venueContacts?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>Support/Post Bands:</strong> {run.supportBands?.[selectedDate] || 'Not set'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Travel Information */}
+              {(run.dayTypes?.[selectedDate] === 'Travel' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
+                <div>
+                  <h3 style={{ borderBottom: '2px solid #ffc107', paddingBottom: 8 }}>Travel Info</h3>
+                  <div style={{ fontSize: 13 }}>
+                    <p>
+                      <strong>Gas Estimate:</strong> ${run.gasEstimates?.[selectedDate] || '75'}
+                    </p>
+                    <p>
+                      <strong>From:</strong> {run.travelFrom?.[selectedDate] || 'Not set'}
+                    </p>
+                    <p>
+                      <strong>To:</strong> {run.travelTo?.[selectedDate] || 'Not set'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Lodging Information */}
+              <div>
+                <h3 style={{ borderBottom: '2px solid #007bff', paddingBottom: 8 }}>Lodging</h3>
+                <div style={{ fontSize: 13 }}>
+                  <p>
+                    <strong>Accommodation:</strong> {run.lodgingAccommodations?.[selectedDate] || 'Not set'}
+                  </p>
+                  <p>
+                    <strong>Address:</strong> {run.lodgingAddresses?.[selectedDate] || 'Not set'}
+                  </p>
+                  <p>
+                    <strong>Host Name:</strong> {run.hostNames?.[selectedDate] || 'Not set'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Access Information */}
+              <div>
+                <h3 style={{ borderBottom: '2px solid #17a2b8', paddingBottom: 8 }}>Access Info</h3>
+                <div style={{ fontSize: 13 }}>
+                  <p>
+                    <strong>Passcode/Instructions:</strong>
+                  </p>
+                  <div style={{ backgroundColor: '#333', padding: 8, borderRadius: 4, wordBreak: 'break-word' }}>
+                    {run.passcodes?.[selectedDate] || 'Not set'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Vehicle Information */}
+              <div>
+                <h3 style={{ borderBottom: '2px solid #6c757d', paddingBottom: 8 }}>Transportation</h3>
+                <div style={{ fontSize: 13 }}>
+                  <p>
+                    <strong>Vehicle:</strong> {run.vehicles?.[selectedDate] || 'Not set'}
+                  </p>
+                  <p>
+                    <strong>Head Count:</strong> {run.headCounts?.[selectedDate] || 'Not set'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Transactions */}
+              {(txByDate[selectedDate] || []).length > 0 && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <h3 style={{ borderBottom: '2px solid #28a745', paddingBottom: 8 }}>Transactions</h3>
+                  <div style={{ fontSize: 13 }}>
+                    {(txByDate[selectedDate] || []).map((t, i) => (
+                      <p key={i} style={{ color: t.type === 'income' ? '#28a745' : '#dc3545' }}>
+                        <strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: 20, textAlign: 'center' }}>
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                style={{
+                  backgroundColor: '#4285f4',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '10px 20px',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
