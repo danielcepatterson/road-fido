@@ -8,7 +8,9 @@ import {
   isTokenExpired,
   refreshAccessToken,
   storeTokens,
-  clearTokens 
+  clearTokens,
+  validateGoogleConfig,
+  getDebugInfo
 } from "./googleCalendarUtils";
 
 // ...copy all types and helpers from App.tsx....
@@ -56,7 +58,22 @@ export default function CalendarView({ run }: { run: any }) {
 
   // Authorize with Google Calendar
   const handleAuthorize = () => {
-    window.location.href = getGoogleAuthUrl();
+    try {
+      // Validate configuration first
+      const validation = validateGoogleConfig();
+      if (!validation.isValid) {
+        setExportStatus(`❌ Configuration Error: ${validation.error}\n\n${getDebugInfo()}`);
+        return;
+      }
+
+      const authUrl = getGoogleAuthUrl();
+      window.location.href = authUrl;
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
+      console.error("Authorization error:", error);
+      console.log(getDebugInfo());
+      setExportStatus(`❌ ${errorMsg}`);
+    }
   };
 
   // Export run to Google Calendar
@@ -202,7 +219,7 @@ export default function CalendarView({ run }: { run: any }) {
           </div>
         )}
         {exportStatus && (
-          <p style={{ marginTop: 12, fontSize: 14, color: exportStatus.includes('❌') ? '#d73a49' : '#22863a' }}>
+          <p style={{ marginTop: 12, fontSize: 14, color: exportStatus.includes('❌') ? '#d73a49' : '#22863a', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
             {exportStatus}
           </p>
         )}

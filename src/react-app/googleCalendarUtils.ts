@@ -2,15 +2,53 @@
  * Google Calendar OAuth utilities
  */
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
-const REDIRECT_URI = `${window.location.origin}/auth/callback`;
+// Get Client ID from environment variable
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+// Determine the correct redirect URI based on environment
+const REDIRECT_URI = (() => {
+	// For production, use the actual domain
+	// For local development, use localhost:5173
+	if (typeof window !== "undefined") {
+		const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+		if (isDev) {
+			return "http://localhost:5173/auth/callback";
+		}
+		return `${window.location.origin}/auth/callback`;
+	}
+	return "http://localhost:5173/auth/callback";
+})();
+
+/**
+ * Validate that Client ID is configured
+ */
+export function validateGoogleConfig(): { isValid: boolean; error?: string } {
+	if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === "") {
+		return {
+			isValid: false,
+			error: "Google Client ID not configured. Please set VITE_GOOGLE_CLIENT_ID in .env.local",
+		};
+	}
+	if (GOOGLE_CLIENT_ID.includes("YOUR_GOOGLE_CLIENT_ID")) {
+		return {
+			isValid: false,
+			error: "Google Client ID is not set. Please update your .env.local file",
+		};
+	}
+	return { isValid: true };
+}
 
 /**
  * Generate Google OAuth login URL
  */
 export function getGoogleAuthUrl(): string {
+	const validation = validateGoogleConfig();
+	if (!validation.isValid) {
+		throw new Error(validation.error);
+	}
+
 	const params = new URLSearchParams({
-		client_id: GOOGLE_CLIENT_ID,
+		client_id: GOOGLE_CLIENT_ID!,
 		redirect_uri: REDIRECT_URI,
 		response_type: "code",
 		scope: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events",
@@ -19,6 +57,16 @@ export function getGoogleAuthUrl(): string {
 	});
 
 	return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
+/**
+ * Debug helper - logs current configuration (safe to expose as it doesn't log secrets)
+ */
+export function getDebugInfo(): string {
+	return `Google OAuth Config:
+- Client ID: ${GOOGLE_CLIENT_ID ? GOOGLE_CLIENT_ID.substring(0, 10) + "..." : "NOT SET"}
+- Redirect URI: ${REDIRECT_URI}
+- Environment: ${import.meta.env.MODE}`;
 }
 
 /**
