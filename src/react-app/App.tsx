@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import CalendarView from "./CalendarView";
+import Lists from "./Lists";
 import { DocumentManager, Document } from "./DocumentManager";
 
 type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
@@ -1108,13 +1109,14 @@ export default function App() {
 		if (selectedRunId) localStorage.setItem('selectedRunId', selectedRunId);
 	}, [selectedRunId]);
 	const selectedRun = runs.find((r: Run) => r.id === selectedRunId) || null;
-	const [page, setPage] = useState<'edit' | 'calendar'>('edit');
+	const [page, setPage] = useState<'edit' | 'calendar' | 'lists'>('edit');
 
 	return (
 		<div>
 			<div style={{ display: 'flex', gap: 12, margin: '16px 0', justifyContent: 'center' }}>
 				<button onClick={() => setPage('edit')} style={{ fontWeight: page === 'edit' ? 'bold' : undefined }}>Edit Runs Page</button>
 				<button onClick={() => setPage('calendar')} style={{ fontWeight: page === 'calendar' ? 'bold' : undefined }}>Calendar View</button>
+				<button onClick={() => setPage('lists')} style={{ fontWeight: page === 'lists' ? 'bold' : undefined }}>Lists</button>
 			</div>
 			{page === 'edit' ? (
 				<EditRunsPage
@@ -1123,8 +1125,10 @@ export default function App() {
 					selectedRunId={selectedRunId}
 					setSelectedRunId={setSelectedRunId}
 				/>
-			) : (
+			) : page === 'calendar' ? (
 				selectedRun ? <CalendarView run={selectedRun} /> : <div className="card">Please select a run to view the calendar.</div>
+			) : (
+				<Lists />
 			)}
 		</div>
 	);
