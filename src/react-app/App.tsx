@@ -23,8 +23,12 @@ type Run = {
   venueContacts?: Record<string, string>;
   supportBands?: Record<string, string>;
   lodgingAccommodations?: Record<string, string>;
+  lodgingAddresses?: Record<string, string>;
+  hostNames?: Record<string, string>;
+  passcodes?: Record<string, string>;
   vehicles?: Record<string, string>;
   headCounts?: Record<string, string>;
+  loadInTimes?: Record<string, string>;
   travelFrom?: Record<string, string>;
   travelTo?: Record<string, string>;
   documents?: Document[];
@@ -187,6 +191,54 @@ const handleHeadCountChange = (date: string, value: string) => {
 			? {
 				...run,
 				headCounts: { ...run.headCounts, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleLodgingAddressChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				lodgingAddresses: { ...run.lodgingAddresses, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleHostNameChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				hostNames: { ...run.hostNames, [date]: value },
+			}
+			: run
+	));
+};
+
+const handlePasscodeChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				passcodes: { ...run.passcodes, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleLoadInTimeChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				loadInTimes: { ...run.loadInTimes, [date]: value },
 			}
 			: run
 	));
@@ -460,6 +512,19 @@ const handleHeadCountChange = (date: string, value: string) => {
 														</div>
 													)}
 												</div>
+												{(dayType === 'Show' || dayType === 'Travel/Show') && (
+													<div style={{ marginBottom: 6 }}>
+														<label style={{ fontSize: 12 }}>
+															🎬 Load-in Time:
+															<input
+																type="time"
+																value={selectedRun?.loadInTimes?.[date] || ''}
+																onChange={e => handleLoadInTimeChange(date, e.target.value)}
+																style={{ marginLeft: 4, width: 90 }}
+															/>
+														</label>
+													</div>
+												)}
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 													{dayType === 'Show' || dayType === 'Travel/Show' ? (
 														<>
@@ -566,6 +631,36 @@ const handleHeadCountChange = (date: string, value: string) => {
 															value={selectedRun?.lodgingAccommodations?.[date] || ''}
 															onChange={e => handleLodgingAccommodationChange(date, e.target.value)}
 															placeholder="Hotel/Motel"
+															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+														/>
+													</li>
+													<li style={{ fontSize: 13, marginBottom: 2 }}>
+														<span style={{ fontSize: 11 }}>📍 Lodging Address:</span>
+														<input
+															type="text"
+															value={selectedRun?.lodgingAddresses?.[date] || ''}
+															onChange={e => handleLodgingAddressChange(date, e.target.value)}
+															placeholder="Address"
+															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+														/>
+													</li>
+													<li style={{ fontSize: 13, marginBottom: 2 }}>
+														<span style={{ fontSize: 11 }}>👤 Host Name:</span>
+														<input
+															type="text"
+															value={selectedRun?.hostNames?.[date] || ''}
+															onChange={e => handleHostNameChange(date, e.target.value)}
+															placeholder="Host name"
+															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+														/>
+													</li>
+													<li style={{ fontSize: 13, marginBottom: 2 }}>
+														<span style={{ fontSize: 11 }}>🔐 Passcode:</span>
+														<input
+															type="text"
+															value={selectedRun?.passcodes?.[date] || ''}
+															onChange={e => handlePasscodeChange(date, e.target.value)}
+															placeholder="Code/Instructions"
 															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
 														/>
 													</li>
