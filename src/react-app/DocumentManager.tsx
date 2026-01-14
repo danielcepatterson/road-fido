@@ -18,6 +18,7 @@ interface DocumentManagerProps {
 
 export function DocumentManager({ date, documents, onAddDocument, onRemoveDocument }: DocumentManagerProps) {
   const [showModal, setShowModal] = useState(false);
+  const [uploadedCount, setUploadedCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -29,20 +30,35 @@ export function DocumentManager({ date, documents, onAddDocument, onRemoveDocume
     if (!files) return;
 
     for (const file of files) {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const data = event.target?.result as string;
-        const doc: Document = {
-          id: `${Date.now()}-${Math.random()}`,
-          date,
-          type,
-          name: file.name,
-          data,
-          thumbnail: type === 'photo' ? data : undefined, // Use original for photo thumbnails
+      try {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const data = event.target?.result as string;
+            const doc: Document = {
+              id: `${Date.now()}-${Math.random()}`,
+              date,
+              type,
+              name: file.name,
+              data,
+              thumbnail: type === 'photo' ? data : undefined,
+            };
+            onAddDocument(doc);
+            setUploadedCount(prev => prev + 1);
+          } catch (err) {
+            console.error('Error processing file:', err);
+            alert('Error processing file: ' + file.name);
+          }
         };
-        onAddDocument(doc);
-      };
-      reader.readAsDataURL(file);
+        reader.onerror = () => {
+          console.error('Error reading file:', file.name);
+          alert('Error reading file: ' + file.name);
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error with file:', err);
+        alert('Error with file: ' + file.name);
+      }
     }
 
     // Reset input
@@ -53,7 +69,10 @@ export function DocumentManager({ date, documents, onAddDocument, onRemoveDocume
   return (
     <div style={{ marginTop: 8 }}>
       <button
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          setShowModal(true);
+          setUploadedCount(0);
+        }}
         style={{
           padding: '4px 8px',
           fontSize: 11,
@@ -270,7 +289,10 @@ export function DocumentManager({ date, documents, onAddDocument, onRemoveDocume
 
               {/* Close Button */}
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setUploadedCount(0);
+                }}
                 style={{
                   padding: '12px',
                   backgroundColor: '#6c757d',
@@ -283,6 +305,11 @@ export function DocumentManager({ date, documents, onAddDocument, onRemoveDocume
               >
                 Close
               </button>
+              {uploadedCount > 0 && (
+                <div style={{ padding: 8, backgroundColor: '#28a745', borderRadius: 4, textAlign: 'center', fontSize: 12, fontWeight: 'bold' }}>
+                  ✓ {uploadedCount} document(s) uploaded
+                </div>
+              )}
             </div>
           </div>
         </div>
