@@ -18,6 +18,13 @@ type Run = {
   showPays?: Record<string, string>;
   gasEstimates?: Record<string, string>;
   venues?: Record<string, string>;
+  venueCities?: Record<string, string>;
+  venueAddresses?: Record<string, string>;
+  venueContacts?: Record<string, string>;
+  supportBands?: Record<string, string>;
+  lodgingAccommodations?: Record<string, string>;
+  vehicles?: Record<string, string>;
+  headCounts?: Record<string, string>;
   travelFrom?: Record<string, string>;
   travelTo?: Record<string, string>;
   documents?: Document[];
@@ -96,6 +103,90 @@ const handleDayTimeChange = (date: string, value: string) => {
 			? {
 				...run,
 				dayTimes: { ...run.dayTimes, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleVenueCityChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				venueCities: { ...run.venueCities, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleVenueAddressChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				venueAddresses: { ...run.venueAddresses, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleVenueContactChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				venueContacts: { ...run.venueContacts, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleSupportBandChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				supportBands: { ...run.supportBands, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleLodgingAccommodationChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				lodgingAccommodations: { ...run.lodgingAccommodations, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleVehicleChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				vehicles: { ...run.vehicles, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleHeadCountChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				headCounts: { ...run.headCounts, [date]: value },
 			}
 			: run
 	));
@@ -384,13 +475,53 @@ const handleDayTimeChange = (date: string, value: string) => {
 																/>
 															</li>
 															<li style={{ fontSize: 13, marginBottom: 2 }}>
-																<span>Venue:</span>
+																<span style={{ fontWeight: 'bold' }}>Venue:</span>
 																<input
 																	type="text"
 																	value={selectedRun?.venues?.[date] || ''}
 																	onChange={e => handleVenueChange(date, e.target.value)}
 																	placeholder="Venue name"
-																	style={{ marginLeft: 8, width: 90, fontSize: 12 }}
+																	style={{ marginLeft: 8, width: 85, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2 }}>
+																<span style={{ fontSize: 11 }}>City:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.venueCities?.[date] || ''}
+																	onChange={e => handleVenueCityChange(date, e.target.value)}
+																	placeholder="City"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2 }}>
+																<span style={{ fontSize: 11 }}>Address:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.venueAddresses?.[date] || ''}
+																	onChange={e => handleVenueAddressChange(date, e.target.value)}
+																	placeholder="Address"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2 }}>
+																<span style={{ fontSize: 11 }}>Contact:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.venueContacts?.[date] || ''}
+																	onChange={e => handleVenueContactChange(date, e.target.value)}
+																	placeholder="Phone/Email"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2 }}>
+																<span style={{ fontSize: 11 }}>Support/Post:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.supportBands?.[date] || ''}
+																	onChange={e => handleSupportBandChange(date, e.target.value)}
+																	placeholder="Band names"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
 																/>
 															</li>
 														</>
@@ -428,6 +559,37 @@ const handleDayTimeChange = (date: string, value: string) => {
 															</li>
 														</>
 													) : null}
+													<li style={{ fontSize: 13, marginBottom: 2 }}>
+														<span style={{ fontSize: 11 }}>🛏️ Lodging:</span>
+														<input
+															type="text"
+															value={selectedRun?.lodgingAccommodations?.[date] || ''}
+															onChange={e => handleLodgingAccommodationChange(date, e.target.value)}
+															placeholder="Hotel/Motel"
+															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+														/>
+													</li>
+													<li style={{ fontSize: 13, marginBottom: 2 }}>
+														<span style={{ fontSize: 11 }}>🚐 Vehicle:</span>
+														<input
+															type="text"
+															value={selectedRun?.vehicles?.[date] || ''}
+															onChange={e => handleVehicleChange(date, e.target.value)}
+															placeholder="Vehicle type"
+															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+														/>
+													</li>
+													<li style={{ fontSize: 13, marginBottom: 2 }}>
+														<span style={{ fontSize: 11 }}>👥 Head Count:</span>
+														<input
+															type="number"
+															min="0"
+															value={selectedRun?.headCounts?.[date] || ''}
+															onChange={e => handleHeadCountChange(date, e.target.value)}
+															placeholder="# people"
+															style={{ marginLeft: 8, width: 50, fontSize: 12 }}
+														/>
+													</li>
 													{(txByDate[date] || []).map(t => (
 														<li key={t.description + t.amount} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
 															<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
