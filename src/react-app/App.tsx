@@ -424,10 +424,21 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 
 	// Save runs and selectedRunId to localStorage
 	useEffect(() => {
-		localStorage.setItem('runs', JSON.stringify(runs));
+		try {
+			localStorage.setItem('runs', JSON.stringify(runs));
+		} catch (err) {
+			console.error('Failed to save runs to localStorage:', err);
+			if ((err as any).name === 'QuotaExceededError') {
+				alert('Storage limit exceeded. Documents may be too large. Please remove some documents.');
+			}
+		}
 	}, [runs]);
 	useEffect(() => {
-		if (selectedRunId) localStorage.setItem('selectedRunId', selectedRunId);
+		try {
+			if (selectedRunId) localStorage.setItem('selectedRunId', selectedRunId);
+		} catch (err) {
+			console.error('Failed to save selectedRunId to localStorage:', err);
+		}
 	}, [selectedRunId]);
 
 	const selectedRun = runs.find((r: Run) => r.id === selectedRunId) || null;

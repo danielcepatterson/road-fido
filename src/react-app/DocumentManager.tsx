@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export type Document = {
   id: string;
@@ -16,6 +16,47 @@ interface DocumentManagerProps {
   onRemoveDocument: (docId: string) => void;
 }
 
+// Helper: compress image by resizing
+function compressImage(file: File, maxWidth: number = 800, maxHeight: number = 800, quality: number = 0.7): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Could not load image'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function DocumentManager({ date, documents, onAddDocument, onRemoveDocument }: DocumentManagerProps) {
   const [showModal, setShowModal] = useState(false);
   const [uploadedCount, setUploadedCount] = useState(0);
@@ -31,33 +72,50 @@ export function DocumentManager({ date, documents, onAddDocument, onRemoveDocume
 
     for (const file of files) {
       try {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
+        let data: string;
+        
+        if (type === 'photo' && file.type.startsWith('image/')) {
+          // Compress image before saving
           try {
-            const data = event.target?.result as string;
-            const doc: Document = {
-              id: `${Date.now()}-${Math.random()}`,
-              date,
-              type,
-              name: file.name,
-              data,
-              thumbnail: type === 'photo' ? data : undefined,
-            };
-            onAddDocument(doc);
-            setUploadedCount(prev => prev + 1);
-          } catch (err) {
-            console.error('Error processing file:', err);
-            alert('Error processing file: ' + file.name);
+            data = await compressImage(file);
+          } catch (compressionErr) {
+            console.warn('Compression failed, using original:', compressionErr);
+            data = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = () => reject(new Error('Could not read file'));
+              reader.readAsDataURL(file);
+            });
           }
+        } else {
+          // For PDFs or if compression fails, read original
+          data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error('Could not read file'));
+            reader.readAsDataURL(file);
+          });
+        }
+
+        const doc: Document = {
+          id: `${Date.now()}-${Math.random()}`,
+          date,
+          type,
+          name: file.name,
+          data,
+          thumbnail: type === 'photo' ? data : undefined,
         };
-        reader.onerror = () => {
-          console.error('Error reading file:', file.name);
-          alert('Error reading file: ' + file.name);
-        };
-        reader.readAsDataURL(file);
+        
+        try {
+          onAddDocument(doc);
+          setUploadedCount(prev => prev + 1);
+        } catch (err) {
+          console.error('Error adding document:', err);
+          alert('Error adding document. Storage may be full.');
+        }
       } catch (err) {
-        console.error('Error with file:', err);
-        alert('Error with file: ' + file.name);
+        console.error('Error processing file:', file.name, err);
+        alert('Error processing file: ' + file.name);
       }
     }
 
