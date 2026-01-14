@@ -22,6 +22,7 @@ export default function CalendarView({ run }: { run: any }) {
   const [exportStatus, setExportStatus] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [expandedVenueDetails, setExpandedVenueDetails] = useState<Record<string, boolean>>({});
 
   // Check for authorization on mount and handle OAuth callback
   useEffect(() => {
@@ -419,18 +420,45 @@ export default function CalendarView({ run }: { run: any }) {
               {/* Venue Details */}
               {(run.dayTypes?.[selectedDate] === 'Show' || run.dayTypes?.[selectedDate] === 'Travel/Show') && (
                 <div>
-                  <h3 style={{ borderBottom: '2px solid #ffc107', paddingBottom: 8 }}>Venue Details</h3>
-                  <div style={{ fontSize: 13 }}>
-                    <p>
-                      <strong>Address:</strong> {run.venueAddresses?.[selectedDate] || 'Not set'}
-                    </p>
-                    <p>
-                      <strong>Contact:</strong> {run.venueContacts?.[selectedDate] || 'Not set'}
-                    </p>
-                    <p>
-                      <strong>Support/Post Bands:</strong> {run.supportBands?.[selectedDate] || 'Not set'}
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => setExpandedVenueDetails(prev => ({ ...prev, [selectedDate!]: !prev[selectedDate!] }))}
+                    style={{
+                      width: '100%',
+                      padding: 10,
+                      marginBottom: 8,
+                      backgroundColor: '#ffc107',
+                      color: '#000',
+                      border: 'none',
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <span>🏛️ Venue Details</span>
+                    <span>{expandedVenueDetails[selectedDate!] ? '▼' : '▶'}</span>
+                  </button>
+                  
+                  {expandedVenueDetails[selectedDate!] && (
+                    <div style={{ fontSize: 13, padding: 8, backgroundColor: 'rgba(255, 193, 7, 0.1)', borderRadius: 4 }}>
+                      <p>
+                        <strong>Address:</strong> {run.venueAddresses?.[selectedDate] || 'Not set'}
+                      </p>
+                      <p>
+                        <strong>Contact:</strong> {run.venueContacts?.[selectedDate] || 'Not set'}
+                      </p>
+                      <hr style={{ borderColor: 'rgba(255, 193, 7, 0.3)', margin: '8px 0' }} />
+                      <p style={{ marginBottom: 4 }}>
+                        <strong>💰 Show Pay:</strong> ${run.showPays?.[selectedDate] || '200'}
+                      </p>
+                      <p>
+                        <strong>🎤 Support/Post Bands:</strong> {run.supportBands?.[selectedDate] || 'Not set'}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
