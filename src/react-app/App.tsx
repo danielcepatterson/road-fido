@@ -29,6 +29,17 @@ type Run = {
   vehicles?: Record<string, string>;
   headCounts?: Record<string, string>;
   loadInTimes?: Record<string, string>;
+  soundcheckTimes?: Record<string, string>;
+  loadInNotes?: Record<string, string>;
+  loadInParking?: Record<string, string>;
+  loadInContact?: Record<string, string>;
+  vanCall?: Record<string, string>;
+  arrivalTime?: Record<string, string>;
+  hospitality?: Record<string, string>;
+  ticketLink?: Record<string, string>;
+  ticketCost?: Record<string, string>;
+  merchSales?: Record<string, string>;
+  numberOfSets?: Record<string, string>;
   travelFrom?: Record<string, string>;
   travelTo?: Record<string, string>;
   documents?: Document[];
@@ -239,6 +250,138 @@ const handleLoadInTimeChange = (date: string, value: string) => {
 			? {
 				...run,
 				loadInTimes: { ...run.loadInTimes, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleSoundcheckTimeChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				soundcheckTimes: { ...run.soundcheckTimes, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleLoadInNotesChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				loadInNotes: { ...run.loadInNotes, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleLoadInParkingChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				loadInParking: { ...run.loadInParking, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleLoadInContactChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				loadInContact: { ...run.loadInContact, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleVanCallChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				vanCall: { ...run.vanCall, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleArrivalTimeChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				arrivalTime: { ...run.arrivalTime, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleHospitalityChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				hospitality: { ...run.hospitality, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleTicketLinkChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				ticketLink: { ...run.ticketLink, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleTicketCostChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				ticketCost: { ...run.ticketCost, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleMerchSalesChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				merchSales: { ...run.merchSales, [date]: value },
+			}
+			: run
+	));
+};
+
+const handleNumberOfSetsChange = (date: string, value: string) => {
+	if (!selectedRun) return;
+	setRuns((prev: Run[]) => prev.map(run =>
+		run.id === selectedRun.id
+			? {
+				...run,
+				numberOfSets: { ...run.numberOfSets, [date]: value },
 			}
 			: run
 	));
@@ -523,6 +666,66 @@ const handleLoadInTimeChange = (date: string, value: string) => {
 																style={{ marginLeft: 4, width: 90 }}
 															/>
 														</label>
+													</div>
+												)}
+												{(dayType === 'Show' || dayType === 'Travel/Show') && (
+													<div style={{ marginBottom: 8, padding: 8, backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 4 }}>
+														<div style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6, color: 'lightblue' }}>📋 Show Details</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>🎵 Soundcheck:</label>
+															<input type="time" value={selectedRun?.soundcheckTimes?.[date] || ''} onChange={e => handleSoundcheckTimeChange(date, e.target.value)} style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>🎸 # of Sets:</label>
+															<input type="number" min="0" value={selectedRun?.numberOfSets?.[date] || ''} onChange={e => handleNumberOfSetsChange(date, e.target.value)} placeholder="1" style={{ marginLeft: 4, width: 40, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>📝 Load-in Notes:</label>
+															<input type="text" value={selectedRun?.loadInNotes?.[date] || ''} onChange={e => handleLoadInNotesChange(date, e.target.value)} placeholder="Notes" style={{ marginLeft: 4, width: 80, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>🚗 Parking:</label>
+															<input type="text" value={selectedRun?.loadInParking?.[date] || ''} onChange={e => handleLoadInParkingChange(date, e.target.value)} placeholder="Parking info" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>📞 Load-in Contact:</label>
+															<input type="text" value={selectedRun?.loadInContact?.[date] || ''} onChange={e => handleLoadInContactChange(date, e.target.value)} placeholder="Phone/Name" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>🚐 Van Call:</label>
+															<input type="time" value={selectedRun?.vanCall?.[date] || ''} onChange={e => handleVanCallChange(date, e.target.value)} style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>⏰ Arrival Time:</label>
+															<input type="time" value={selectedRun?.arrivalTime?.[date] || ''} onChange={e => handleArrivalTimeChange(date, e.target.value)} style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>🍽️ Hospitality:</label>
+															<input type="text" value={selectedRun?.hospitality?.[date] || ''} onChange={e => handleHospitalityChange(date, e.target.value)} placeholder="Details" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>🎟️ Ticket Link:</label>
+															<input type="text" value={selectedRun?.ticketLink?.[date] || ''} onChange={e => handleTicketLinkChange(date, e.target.value)} placeholder="URL" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 4 }}>
+															<label style={{ fontSize: 11 }}>💵 Ticket Cost:</label>
+															<input type="number" min="0" value={selectedRun?.ticketCost?.[date] || ''} onChange={e => handleTicketCostChange(date, e.target.value)} placeholder="$" style={{ marginLeft: 4, width: 50, fontSize: 11 }} />
+														</div>
+														
+														<div style={{ marginBottom: 0 }}>
+															<label style={{ fontSize: 11 }}>🎤 Merch Sales:</label>
+															<input type="text" value={selectedRun?.merchSales?.[date] || ''} onChange={e => handleMerchSalesChange(date, e.target.value)} placeholder="Notes/Amount" style={{ marginLeft: 4, width: 70, fontSize: 11 }} />
+														</div>
 													</div>
 												)}
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
