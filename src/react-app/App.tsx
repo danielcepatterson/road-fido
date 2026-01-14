@@ -415,6 +415,7 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 	const [newRunEndDate, setNewRunEndDate] = useState('');
 	const [expandedShowDetails, setExpandedShowDetails] = useState<Record<string, boolean>>({});
 	const [expandedVenueDetails, setExpandedVenueDetails] = useState<Record<string, boolean>>({});
+	const [expandedLodgingDetails, setExpandedLodgingDetails] = useState<Record<string, boolean>>({});
 	const [form, setForm] = useState<{ type: 'income' | 'expense'; description: string; amount: string }>({
 	  type: 'expense',
 	  description: '',
@@ -864,67 +865,77 @@ const handleNumberOfSetsChange = (date: string, value: string) => {
 															</li>
 														</>
 													) : null}
-													<li style={{ fontSize: 13, marginBottom: 2 }}>
-														<span style={{ fontSize: 11 }}>🛏️ Lodging:</span>
-														<input
-															type="text"
-															value={selectedRun?.lodgingAccommodations?.[date] || ''}
-															onChange={e => handleLodgingAccommodationChange(date, e.target.value)}
-															placeholder="Hotel/Motel"
-															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-														/>
+													<li 
+														style={{ fontSize: 13, marginBottom: 2, cursor: 'pointer' }}
+														onClick={() => setExpandedLodgingDetails(prev => ({ ...prev, [date]: !prev[date] }))}
+													>
+														<span style={{ fontWeight: 'bold' }}>Lodging Details {expandedLodgingDetails[date] ? '▼' : '▶'}</span>
 													</li>
-													<li style={{ fontSize: 13, marginBottom: 2 }}>
-														<span style={{ fontSize: 11 }}>📍 Lodging Address:</span>
-														<input
-															type="text"
-															value={selectedRun?.lodgingAddresses?.[date] || ''}
-															onChange={e => handleLodgingAddressChange(date, e.target.value)}
-															placeholder="Address"
-															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-														/>
-													</li>
-													<li style={{ fontSize: 13, marginBottom: 2 }}>
-														<span style={{ fontSize: 11 }}>👤 Host Name:</span>
-														<input
-															type="text"
-															value={selectedRun?.hostNames?.[date] || ''}
-															onChange={e => handleHostNameChange(date, e.target.value)}
-															placeholder="Host name"
-															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-														/>
-													</li>
-													<li style={{ fontSize: 13, marginBottom: 2 }}>
-														<span style={{ fontSize: 11 }}>🔐 Passcode:</span>
-														<input
-															type="text"
-															value={selectedRun?.passcodes?.[date] || ''}
-															onChange={e => handlePasscodeChange(date, e.target.value)}
-															placeholder="Code/Instructions"
-															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-														/>
-													</li>
-													<li style={{ fontSize: 13, marginBottom: 2 }}>
-														<span style={{ fontSize: 11 }}>🚐 Vehicle:</span>
-														<input
-															type="text"
-															value={selectedRun?.vehicles?.[date] || ''}
-															onChange={e => handleVehicleChange(date, e.target.value)}
-															placeholder="Vehicle type"
-															style={{ marginLeft: 8, width: 70, fontSize: 12 }}
-														/>
-													</li>
-													<li style={{ fontSize: 13, marginBottom: 2 }}>
-														<span style={{ fontSize: 11 }}>👥 Head Count:</span>
-														<input
-															type="number"
-															min="0"
-															value={selectedRun?.headCounts?.[date] || ''}
-															onChange={e => handleHeadCountChange(date, e.target.value)}
-															placeholder="# people"
-															style={{ marginLeft: 8, width: 50, fontSize: 12 }}
-														/>
-													</li>
+													{expandedLodgingDetails[date] && (
+														<>
+															<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																<span style={{ fontSize: 11 }}>🛏️ Lodging:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.lodgingAccommodations?.[date] || ''}
+																	onChange={e => handleLodgingAccommodationChange(date, e.target.value)}
+																	placeholder="Hotel/Motel"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																<span style={{ fontSize: 11 }}>📍 Lodging Address:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.lodgingAddresses?.[date] || ''}
+																	onChange={e => handleLodgingAddressChange(date, e.target.value)}
+																	placeholder="Address"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																<span style={{ fontSize: 11 }}>👤 Host Name:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.hostNames?.[date] || ''}
+																	onChange={e => handleHostNameChange(date, e.target.value)}
+																	placeholder="Host name"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																<span style={{ fontSize: 11 }}>🔐 Passcode:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.passcodes?.[date] || ''}
+																	onChange={e => handlePasscodeChange(date, e.target.value)}
+																	placeholder="Code/Instructions"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																<span style={{ fontSize: 11 }}>🚐 Vehicle:</span>
+																<input
+																	type="text"
+																	value={selectedRun?.vehicles?.[date] || ''}
+																	onChange={e => handleVehicleChange(date, e.target.value)}
+																	placeholder="Vehicle type"
+																	style={{ marginLeft: 8, width: 70, fontSize: 12 }}
+																/>
+															</li>
+															<li style={{ fontSize: 13, marginBottom: 2, marginLeft: 8 }}>
+																<span style={{ fontSize: 11 }}>👥 Head Count:</span>
+																<input
+																	type="number"
+																	min="0"
+																	value={selectedRun?.headCounts?.[date] || ''}
+																	onChange={e => handleHeadCountChange(date, e.target.value)}
+																	placeholder="# people"
+																	style={{ marginLeft: 8, width: 50, fontSize: 12 }}
+																/>
+															</li>
+														</>
+													)}
 													{(txByDate[date] || []).map(t => (
 														<li key={t.description + t.amount} style={{ color: t.type === 'income' ? 'lightgreen' : 'salmon', fontSize: 13 }}>
 															<strong>{t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}</strong> {t.description.replace(/^\d{4}-\d{2}-\d{2}:/, '')}
