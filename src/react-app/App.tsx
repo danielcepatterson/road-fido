@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import CalendarView from "./CalendarView";
+import { DocumentManager, Document } from "./DocumentManager";
 
 type Transaction = { type: 'income' | 'expense'; description: string; amount: number };
 type DayType = 'Travel' | 'Show' | 'OFF' | 'Travel/Show' | '';
@@ -19,6 +20,7 @@ type Run = {
   venues?: Record<string, string>;
   travelFrom?: Record<string, string>;
   travelTo?: Record<string, string>;
+  documents?: Document[];
 };
 
 interface EditRunsPageProps {
@@ -432,6 +434,32 @@ const handleDayTimeChange = (date: string, value: string) => {
 														</li>
 													))}
 												</ul>
+												<DocumentManager
+													date={date}
+													documents={selectedRun?.documents || []}
+													onAddDocument={(doc) => {
+														if (!selectedRun) return;
+														setRuns((prev: Run[]) => prev.map(run =>
+															run.id === selectedRun.id
+																? {
+																	...run,
+																	documents: [...(run.documents || []), doc],
+																}
+																: run
+														));
+													}}
+													onRemoveDocument={(docId) => {
+														if (!selectedRun) return;
+														setRuns((prev: Run[]) => prev.map(run =>
+															run.id === selectedRun.id
+																? {
+																	...run,
+																	documents: (run.documents || []).filter(d => d.id !== docId),
+																}
+																: run
+														));
+													}}
+												/>
 											</div>
 										);
 									})}
